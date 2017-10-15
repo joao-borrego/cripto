@@ -89,9 +89,14 @@ machine2 (192.168.1.2) at 08:00:27:94:55:1f [ether] on enp0s8
 ```
 Notice how the MAC address is the same for both machines.
 
-#### 2.2 RTS Hijacking
+#### 2.2 RST Hijacking
 
+TODO
 I could not get this thing to work. Pls help
+
+#### 2.3 Redirect response to ICMP echo/request
+
+TODO
 
 ### 3. OpenVAS
 Open the browser in `localhost` on the machine with openVAS (alternatively `192.168.1.[MACHINE]:443`).
