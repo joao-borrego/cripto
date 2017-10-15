@@ -13,4 +13,4 @@ sudo python arpp.py -S 192.168.1.3 -D 192.168.1.1 -h $mac_2 -m $mac_1
 If succesful, the ARP table of machine 1 will now have a spoofed MAC address for machine 3.
 
 
-[assignment 2]: assignments/assignment2.md
+[assignment 2]: assignment2.md
