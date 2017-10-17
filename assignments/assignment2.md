@@ -20,6 +20,8 @@ Should the check fail, follow the instructions in FIX
 
 #### 1.2 `tcpdump`
 
+Tcpdump prints the contents of network packets. With the necessary privileges on a system through which unencrypted traffic such as Telnet or HTTP passes, a user can use tcpdump to view login IDs, passwords, the URLs and content of websites being viewed, or any other unencrypted information. Here's a nice [tutorial](https://danielmiessler.com/study/tcpdump/) and [usage examples](https://www.rationallyparanoid.com/articles/tcpdump.html).
+
 Run `sudo tcpdump` on machine 3, and generate a ICMP packet from machine 1 to 2 using
 
 ```
@@ -32,11 +34,13 @@ The output should resemble:
 17:07:30.455664 IP machine2 > machine1: ICMP echo reply, id 2701, seq 1, length 64
 ```
 
-The `-X` option prints each packet in HEX and ASCII.
+The `-X` option prints each packet in HEX and ASCII minus its link level header. The `-XX` option prints each packet in HEX and ASCII including its link level header. Inside the HEX dump output is the destination and source MAC address. 
 
-On machine 3 run `sudo tcpdump -X dst host 192.168.1.1` and start a telnet connection from machine 2 to 1
+
+On machine 3 run `sudo tcpdump -X dst host 192.168.1.1` and start a telnet connection from machine 2 to 1 
 by writing `telnet 192.168.1.1` in machine 2.
-The username and password should appear letter by letter in separate packets.
+The username ("user") and password ("inseguro") should appear letter by letter in separate packets. T
+This previous tcpdump command captures any packets where the destination host is 192.168.1.1 and prints each in HEX and ASCII.
 
 Notice however that this is not possible with an SSH session.
 
