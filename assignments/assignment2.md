@@ -55,7 +55,7 @@ Repeat the telnet connection from machine 1 to 2.
 On wireshark follow the TCP stream of the telnet connection.
 The output should have both the user and password in clear text.
 
-Here you can check the Ethernet, IP and TCP headers in ASCII:
+Here you can check the Ethernet, IP and TCP headers in ASCII that was in the HEX dump:
 
 ![](.images/wireshark_hexdump.png?raw=true)
 
@@ -65,8 +65,8 @@ but will be unable to decypher the content of the folowing ecnrypted packets.
 #### 1.4 `nmap`
 
 Nmap is a utility tht provides information on remote machines.
-Issuing `nmap [IP]` should return a list of open ports on the destination machine.
-`sudo nmap -O [IP]` should return the OS running on the destination machine. 
+Issuing `nmap <IP>` should return a list of open ports on the destination machine.
+`sudo nmap -O <IP>` should return the OS running on the destination machine. 
 
 ### 2. Vulnerabilities in TCP/IP
 
