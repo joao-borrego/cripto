@@ -34,12 +34,12 @@ The output should resemble:
 17:07:30.455664 IP machine2 > machine1: ICMP echo reply, id 2701, seq 1, length 64
 ```
 
-The `-X` option prints each packet in HEX and ASCII minus its link level header. The `-XX` option prints each packet in HEX and ASCII including its link level header. Inside the HEX dump output is the destination and source MAC address. 
+The `-X` option prints each packet in HEX and ASCII minus its link level header. The `-XX` option prints each packet in HEX and ASCII including its link level header (AKA ethernet header). Inside the HEX dump output is the destination and source MAC addresses. 
 
 
 On machine 3 run `sudo tcpdump -X dst host 192.168.1.1` and start a telnet connection from machine 2 to 1 
 by writing `telnet 192.168.1.1` in machine 2.
-The username ("user") and password ("inseguro") should appear letter by letter in separate packets. T
+The username ("user") and password ("inseguro") should appear letter by letter in separate packets. 
 This previous tcpdump command captures any packets where the destination host is 192.168.1.1 and prints each in HEX and ASCII.
 
 Notice however that this is not possible with an SSH session.
@@ -55,8 +55,12 @@ Repeat the telnet connection from machine 1 to 2.
 On wireshark follow the TCP stream of the telnet connection.
 The output should have both the user and password in clear text.
 
-Howeve, if we establish an ssh connection between 1 and 2, Wireshark will detect the Diffie-Hellman key exchange,
-but will be unable to decpher the content of the folowwing ecnrypted packets.
+Here you can check the Ethernet, IP and TCP headers in ASCII:
+
+![alt text](https://github.com/jsbruglie/cripto/tree/dev/assignments/.images/wireshark_hexdump.png"Hexdump")
+
+However, if we establish an ssh connection between 1 and 2, Wireshark will detect the Diffie-Hellman key exchange,
+but will be unable to decypher the content of the folowing ecnrypted packets.
 
 #### 1.4 `nmap`
 
