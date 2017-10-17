@@ -57,7 +57,7 @@ The output should have both the user and password in clear text.
 
 Here you can check the Ethernet, IP and TCP headers in ASCII:
 
-![alt text](https://github.com/jsbruglie/cripto/tree/dev/assignments/.images/wireshark_hexdump.png"Hexdump")
+![alt text](https://github.com/jsbruglie/cripto/tree/dev/assignments/.images/wireshark_hexdump.png "Hexdump")
 
 However, if we establish an ssh connection between 1 and 2, Wireshark will detect the Diffie-Hellman key exchange,
 but will be unable to decypher the content of the folowing ecnrypted packets.
