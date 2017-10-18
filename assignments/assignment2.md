@@ -1,4 +1,4 @@
-## Assignment 2
+## Assignment 2 - TCP/IP Vulnerabilities
 
   * [Setup](#setup)
     + [OpenVAS installation](#openvas-installation)
@@ -50,11 +50,10 @@ The output should resemble:
 17:07:30.455664 IP machine2 > machine1: ICMP echo reply, id 2701, seq 1, length 64
 ```
 
-The `-X` option prints each packet in HEX and ASCII minus its link level header. The `-XX` option prints each packet in HEX and ASCII including its link level header (refer to [ethernet header](#ethernet-header)). Inside the HEX dump output is the destination and source MAC addresses. 
+The `-X` option prints each packet in HEX and ASCII minus its link level header. The `-XX` option prints each packet in HEX and ASCII including its link level header (refer to [ethernet header](#ethernet-header)).
+Inside the HEX dump output is the destination and source MAC addresses. 
 
-
-On machine 3 run `sudo tcpdump -X dst host 192.168.1.1` and start a telnet connection from machine 2 to 1 
-by writing `telnet 192.168.1.1` in machine 2.
+On machine 3 run `sudo tcpdump -X dst host 192.168.1.1` and start a telnet connection from machine 2 to 1 by writing `telnet 192.168.1.1` in machine 2.
 The username ("user") and password ("inseguro") should appear letter by letter in separate packets. 
 This previous tcpdump command captures any packets where the destination host is 192.168.1.1 and prints each in HEX and ASCII.
 
@@ -75,8 +74,7 @@ Here you can check the [Ethernet](#ethernet-header), IP and [TCP](#tcp-header) h
 
 ![](.images/wireshark_hexdump.png?raw=true)
 
-However, if we establish an ssh connection between 1 and 2, Wireshark will detect the Diffie-Hellman key exchange,
-but will be unable to decypher the content of the folowing ecnrypted packets.
+However, if we establish an ssh connection between 1 and 2, Wireshark will detect the Diffie-Hellman key exchange, but will be unable to decypher the content of the folowing ecnrypted packets.
 
 #### 1.4 `nmap`
 
@@ -89,9 +87,12 @@ Issuing `nmap <IP>` should return a list of open ports on the destination machin
 #### 2.1 ARP redirect
 
 The arp table maps IP addresses to MAC addresses. Host machine uses ARP because when machine needs to send packet to another device, destination MAC address is needed to be written in the packet sent. 
-Example: MachineA looks for MachineB's MAC address using the arp table, sends the packet to the switch. The switch matches the MAC adress in its MAC Addresses table and forwards the packet. If the MAC address was not found, the packet is broadcasted to all the ports.
+Example: MachineA looks for MachineB's MAC address using the arp table, sends the packet to the switch.
+The switch matches the MAC adress in its MAC Addresses table and forwards the packet.
+If the MAC address was not found, the packet is broadcasted to all the ports.
 
-**Machine 2 will be the attacker**. Start by obtaining the MAC addresses of 1 and 3.
+**Machine 2 will be the attacker**.
+Start by obtaining the MAC addresses of 1 and 3.
 ```
 ping -c 1 192.168.1.1 # 08:00:27:4b:d6:a2
 ping -c 1 192.168.1.3 # 08:00:27:90:f9:41
@@ -101,13 +102,13 @@ Check the MAC address of the attacking machine with
 ifconfig # ... ether 08:00:27:94:55:1f
 ```
 
-You can check the contents of the arp table with `arp -a #all`. Do it on machine 1 for example.
+You can check the contents of the arp table with `arp -a #all`.
+Try it on machine 1 for example.
 The command `arp` manipulates the system ARP cache, therefore the previous pings were to push the MAC addresses of those IPs to the cache.
 
 Now, use `nemesis` in machine 2 to attack the arp table of machine 1.
-
 ```
-sudo nemesis arp -v -S 192.168.1.3 -D 192.168.1.1 -h [MAC machine 2] -m [MAC machine 1]
+sudo nemesis arp -v -S 192.168.1.3 -D 192.168.1.1 -h <MAC machine 2> -m <MAC machine 1>
 ```
 -h Specifies the sender-hardware-address within the ARP frame only. 
 
@@ -127,9 +128,10 @@ Notice how the MAC address is the same for both machines.
 
 The purpose of this attack is to reset a TCP connection.
 
-**Machine 3 will be the attacker**. In machine 3 use tcpdump to find the ack number and port being used in the ssh connection.
+**Machine 3 will be the attacker**.
+In machine 3 use tcpdump to find the ack number and port being used in the ssh connection.
 ```
-tcpdump -S -n -e -l “tcp[13] & 16 == 16”
+tcpdump -S -n -e -l "tcp[13] & 16 == 16"
 ```
 
 -S Prints absolute sequence numbers.
@@ -140,21 +142,20 @@ tcpdump -S -n -e -l “tcp[13] & 16 == 16”
 
 -l Makes stdout line buffered. Useful if you want to see the data while capturing it.
 
-“tcp[13] & 16 == 16” Gets the ACK and SYN number present in octet 13 (refer to [TCP header](#tcp-header)).
+"tcp[13] & 16 == 16" Gets the ACK and SYN number present in octet 13 (refer to [TCP header](#tcp-header)).
 
 Set a ssh connection between machine 1 and 2. In machine 1:
-
 ```
 ssh 192.168.1.2
 ```
 
 Use machine 3 to send a reset packet to one of the machines.
-
 ```
 nemesis tcp -v -fR -S 192.168.1.2 -x 22 -D 192.168.1.1 -y <port> -s <ack number>
 ```
 
-where the `<port>` and the `<ack number>` are in the last line outputed in the tcpdump executed before. If you did the ssh connection from machine 2, switch the IPs of the machines.
+where the `<port>` (detination port) and the `<ack number>` are in the last line outputed in the tcpdump executed before.
+If you did the ssh connection from machine 2, switch the IPs of the machines accordingly.
 
 -fR Specifies a RESET flag within the TCP header.
 
@@ -165,10 +166,10 @@ where the `<port>` and the `<ack number>` are in the last line outputed in the t
 -s Specifies the sequence-number within the TCP header.
 
 The outcome of this should resemble:
-
 ```
 packet_write_wait: Connection to 192.168.1.2 port 22: Broken pipe
 ```
+This confirms the TCP connection was reset and the success of the attack.
 
 #### 2.3 Redirect response to ICMP echo/request
 
@@ -178,7 +179,7 @@ request.
 In machine 3, use tcpdump to spy the source and destination in the packets.
 
 ```
-tcpdump -n “ip[9]=1”
+tcpdump -n "ip[9]=1"
 ```
 
 Refer to [IP Header](#ip-header)
@@ -191,9 +192,9 @@ nemesis icmp -S <source IP> -D <destination IP>
 
 For instance, use source ```192.168.1.1``` and destination ```192.168.1.2```. Watch the tcpdump. Machine 2 replied to machine 1, but machine 1 never asked anything!
 
-
 ### 3. OpenVAS
-Open the browser in `localhost` on the machine with openVAS (alternatively `192.168.1.[MACHINE]:443`).
+
+Open the browser in `localhost` on the machine with openVAS (alternatively `192.168.1.<machine_id>:443`).
 Login in with
 - user: `myuser`
 - password: `44bb2d3f-d28f-4bcf-8f45-ae6ad2bc06b4`
@@ -201,7 +202,6 @@ Login in with
 1. Navigate to Scans > Tasks > Task Wizard and input the ip of the desired target.
 2. Wait for like 30 mins :^)
 3. Profit.
-
 
 ### 4. References
 
@@ -237,14 +237,14 @@ The octet 13 contains the TCP control bits where th ACK (A) number and SYN (S) n
 Since we only want to see ACK (which is bit 4 - in decimal 16), we will use the command:
 
 ```
-tcpdump -S -n -e -l “tcp[13] & 16 == 16”
+tcpdump -S -n -e -l "tcp[13] & 16 == 16"
 ```
 
 or
 
 
 ```
-tcpdump -S -n -e -l “tcp[13] = 16”
+tcpdump -S -n -e -l "tcp[13] = 16"
 ```
 
 That means "let the 13th octet of a TCP datagram have the decimal value 16".
@@ -282,12 +282,12 @@ For more information check `man tcpdump` at "Capturing TCP packets with particul
 ```
 
 ```
-tcpdump “ip[9]=1”
+tcpdump "ip[9]=1"
 ```
 
 Will get both the source and the destination address alike the TCP header.
 
-(make this more complete...)
+(TODO - make this more complete...)
 
 #### Ethernet Header
 
