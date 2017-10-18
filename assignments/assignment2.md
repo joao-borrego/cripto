@@ -154,7 +154,7 @@ Use machine 3 to send a reset packet to one of the machines.
 nemesis tcp -v -fR -S 192.168.1.2 -x 22 -D 192.168.1.1 -y <port> -s <ack number>
 ```
 
-where the `<port>` (detination port) and the `<ack number>` are in the last line outputed in the tcpdump executed before.
+where the `<port>` (destination port) and the `<ack number>` are in the last line outputed in the tcpdump executed before.
 If you did the ssh connection from machine 2, switch the IPs of the machines accordingly.
 
 -fR Specifies a RESET flag within the TCP header.
