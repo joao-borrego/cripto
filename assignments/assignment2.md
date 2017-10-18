@@ -140,7 +140,7 @@ tcpdump -S -n -e -l “tcp[13] & 16 == 16”
 
 -l Makes stdout line buffered. Useful if you want to see the data while capturing it.
 
-“tcp[13] & 16 == 16” Gets the ACK and SYN number present in octet 13 (refer to [TCP connection](#tcp-header)).
+“tcp[13] & 16 == 16” Gets the ACK and SYN number present in octet 13 (refer to [TCP header](#tcp-header)).
 
 Set a ssh connection between machine 1 and 2. In machine 1:
 
