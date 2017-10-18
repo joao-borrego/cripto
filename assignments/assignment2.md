@@ -72,7 +72,10 @@ Issuing `nmap <IP>` should return a list of open ports on the destination machin
 
 #### 2.1 ARP redirect
 
-Machine 2 will be the attacker. Start by obtaining the MAC addresses of 1 and 3.
+The arp table maps IP addresses to MAC addresses. Host machine uses ARP because when machine needs to send packet to another device, destination MAC address is needed to be written in the packet sent. 
+Example: MachineA looks for MachineB's MAC address using the arp table, sends the packet to the switch. The switch matches the MAC adress in its MAC Addresses table and forwards the packet. If the MAC address was not found, the packet is broadcasted to all the ports.
+
+**Machine 2 will be the attacker**. Start by obtaining the MAC addresses of 1 and 3.
 ```
 ping -c 1 192.168.1.1 # 08:00:27:4b:d6:a2
 ping -c 1 192.168.1.3 # 08:00:27:90:f9:41
@@ -82,12 +85,17 @@ Check the MAC address of the attacking machine with
 ifconfig # ... ether 08:00:27:94:55:1f
 ```
 
-You can check the contents of the arp table in machine 1 with `arp -a #all`.
-Now, use `nemesis` in machine 2 to attack the arp table in 1.
+You can check the contents of the arp table with `arp -a #all`. Do it on machine 1 for example.
+The command `arp` manipulates the system ARP cache, therefore the previous pings were to push the MAC addresses of those IPs to the cache.
+
+Now, use `nemesis` in machine 2 to attack the arp table of machine 1.
 
 ```
 sudo nemesis arp -v -S 192.168.1.3 -D 192.168.1.1 -h [MAC machine 2] -m [MAC machine 1]
 ```
+-h Specifies the sender-hardware-address within the ARP frame only. 
+
+-m Specifies the target-hardware-address within the ARP frame only. 
 
 This should effectively fool machine 1 into thinking that machine3 has the MAC of 2, thus redirecting packets to it.
 We can check the attack was succesful by checking the arp table in 1, which can resemble.
@@ -96,6 +104,8 @@ machine3 (192.168.1.3) at 08:00:27:94:55:1f [ether] on enp0s8
 machine2 (192.168.1.2) at 08:00:27:94:55:1f [ether] on enp0s8
 ```
 Notice how the MAC address is the same for both machines.
+
+(Nemesis can natively craft and inject [ARP](http://nemesis.sourceforge.net/manpages/nemesis-arp.1.html), DNS, ETHERNET, ICMP, IGMP, IP, OSPF, RIP, TCP and UDP packets)
 
 #### 2.2 RST Hijacking
 
