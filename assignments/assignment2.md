@@ -281,8 +281,6 @@ For more information check `man tcpdump` at "Capturing TCP packets with particul
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 
-The command:
-
 ```
 tcpdump “ip[9]=1”
 ```
