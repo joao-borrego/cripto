@@ -71,7 +71,7 @@ Repeat the telnet connection from machine 1 to 2.
 On wireshark follow the TCP stream of the telnet connection.
 The output should have both the user and password in clear text.
 
-Here you can check the [Ethernet](#ethernet-header), IP and TCP(#tcp-header) headers in ASCII that was in the HEX dump:
+Here you can check the [Ethernet](#ethernet-header), IP and [TCP](#tcp-header) headers in ASCII that was in the HEX dump:
 
 ![](.images/wireshark_hexdump.png?raw=true)
 
