@@ -29,11 +29,14 @@ Check the documentation for [scapy].
 
 ### 3. RST Hijacking
 
-TODO
+Check implementation in [rst_hijack.py].
 
 ### 4. Redirect response to ICMP echo/request 
 
-TODO
+Check implementation in [icmp_flood.py].
 
 [assignment 2]: assignment2.md
 [scapy]: http://scapy.readthedocs.io
+[rst_hijack.py]: assignment3/rst_hijack.py
+[icmp_flood.py]: assignment3/icmp_flood.py
+
