@@ -15,7 +15,9 @@ packets = sniff(filter='tcp', stop_filter=stopfilter)
 packet = packets[-1]
 
 # Get the relevant parameters from the packet and switch the
-# source and destination
+# source and destination so that the ack number we acquired is
+# valid since it is only usable on a message that is a "reply"
+# to the intercepted one
 src = packet[IP].dst
 dst = packet[IP].src
 sport = packet[TCP].dport
