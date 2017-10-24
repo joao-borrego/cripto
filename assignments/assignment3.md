@@ -25,11 +25,19 @@ Scapy allows us to create our own packets, namely stacking different protocol la
 The previous command is sending an ARP Ethernet packet.
 To do so, it relies on the composition operator `/` to stack the Ethernet and ARP layers.
 
-Check the documentation for [scapy].
+
+The ``send()`` function will send packets at layer 3. It decides the routing based on local table.
+The ``sendp()`` function will work at layer 2. 
+
+Check the documentation for [scapy]. And this [guide]. And this [cheatsheet].
 
 ### 3. RST Hijacking
 
-Check implementation in [rst_hijack.py].
+Check implementation in [rst_hijack.py]. 
+
+You might want to know what are the flags you can use in ``sniff``, do this:
+
+`` print sniff.__doc__ ``
 
 ### 4. Redirect response to ICMP echo/request 
 
@@ -39,4 +47,6 @@ Check implementation in [icmp_flood.py].
 [scapy]: http://scapy.readthedocs.io
 [rst_hijack.py]: assignment3/rst_hijack.py
 [icmp_flood.py]: assignment3/icmp_flood.py
+[guide]: http://resources.infosecinstitute.com/scapy-all-in-one-networking-tool/
+[cheatsheet]: https://blogs.sans.org/pen-testing/files/2016/04/ScapyCheatSheet_v0.2.pdf
 
