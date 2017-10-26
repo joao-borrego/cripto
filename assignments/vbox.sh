@@ -2,9 +2,9 @@
 VBoxManage snapshot "machine1" take Machine1LinkedSnapshot
 
 # Attack of the clones
-VBoxManage clonevm "machine 1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine2 --register
-VBoxManage clonevm "machine 1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine3 --register
-VBoxManage clonevm "machine 1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine4 --register
+VBoxManage clonevm "machine1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine2 --register
+VBoxManage clonevm "machine1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine3 --register
+VBoxManage clonevm "machine1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine4 --register
 
 # Machine 1 interfaces
 VBoxManage modifyvm "machine1" --nic1 nat
