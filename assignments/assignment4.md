@@ -2,11 +2,13 @@
 
  * [1. Introduction](#1-introduction)
  * [2. `iptables`](#2--iptables-)
-     + [2.1 Simple rules](#21-simple-rules)
-    	- [2.1.1 Reject ICMP packets](#211-reject-icmp-packets)
-    	- [2.1.2 Reject telnet connections](#211-212-reject-telnet-connections)
-    	- [2.1.3 Reject telnet connections from a specific IP address](#213-reject-telnet-connections-from-a-specific-ip-address)
-    	- [2.1.4 Reject telnet connections from a specific subnet](#214-reject-telnet-connections-from-a-specific-subnet)
+    + [2.1 Simple rules](#21-simple-rules)
+        - [2.1.1 Reject ICMP packets](#211-reject-icmp-packets)
+        - [2.1.2 Reject telnet connections](#211-212-reject-telnet-connections)
+        - [2.1.3 Reject telnet connections from a specific IP address](#213-reject-telnet-connections-from-a-specific-ip-address)
+        - [2.1.4 Reject telnet connections from a specific subnet](#214-reject-telnet-connections-from-a-specific-subnet)
+    + [2.2 Redirect connections](#22-redirect-connections)
+* [3. Fwbuilder](#3-fwbuilder)
 
 ### 1. Introduction
 
@@ -41,10 +43,10 @@ Now run the following command in machine 2 to specify that icmp packets should b
 `sudo iptables -A INPUT -p icmp -j DROP`
 
 More specifically, this command appends a rule to the INPUT chain in the IPv4 packet filtering table,
-stating that packets with the icmp protocol should be handled with a jump to the DROP action.
+(the default table) stating that packets with the icmp protocol should be handled with a jump to the DROP action.
 This will result in the matching packets being ignored in the configured machine.
 
-Verify that the ping request from machine 3 will now fail.
+Verify that a ping request from machine 3 will now fail.
 You can check the list of existing rules in machine 2 by executing:
 
 ```
@@ -56,8 +58,8 @@ DROP       icmp --  anywhere             anywhere
 
 Now remove the rule in machine 2 by using one of the two commands:
 ```
-sudo iptables –D INPUT 1 # Deletes the first rule from the INPUT chain
-sudo iptables –D INPUT –p icmp –j DROP # Deletes the ICMP rule specifically
+sudo iptables -D INPUT 1 # Deletes the first rule from the INPUT chain
+sudo iptables -D INPUT -p icmp -j DROP # Deletes the ICMP rule specifically
 ```
 
 ##### 2.1.2 Reject telnet connections
@@ -101,8 +103,52 @@ In fact, it will be presented with a `Connection refused` error.
 
 Delete all of the rules in machine 2 with:
 ```
-sudo iptables -F # flush all the chains, deleting every rule
+sudo iptables -F # flush all the chains in the filter table, deleting every rule
 ```
+
+#### 2.2 Redirect connections
+
+The previous exercises used the INPUT chain from the filter table.
+We will now use the PREROUTING chain in the NAT table to redirect network packets.
+On machine 2 run:
+```
+sudo iptables -t nat -A PREROUTING --dst 192.168.1.2 -p tcp --dport 23 -j DNAT --to-destination 192.168.3.2
+```
+
+This will append a rule to the nat table's PREROUTING chain that specifies that tcp packets 
+directed to port 23 of machine 2 are to be redirected to machine 3 instead.
+The DNAT extension specifies "A virtual state, matching if the original destination differs from the reply source.", as per the man page.
+
+**The rule seems correct, but I could not get it to work :( . Keep getting connection refused error**
+
+You can examine that indeed a connection is established between 1 and 3 (**UPDATE IF YOU GET IT TO WORK**):
+```
+user@machine1:~$ netstat -t
+Active Internet connections (w/o servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      1 machine1:42658          machine2:telnet         SYN_SENT
+```
+
+It is also possible to redirect http traffic to machine 3.
+On machine 2:
+```
+sudo iptables -t nat -A PREROUTING --dst 192.168.1.2 -p tcp --dport 80 -j DNAT --to-destination 192.168.3.2
+```
+
+Now, on machine 1 go to a browser and request http://192.168.1.2 .
+You should get the default Apache server page from machine 3, indicating
+that the redirection was a sucess.
+
+Finally clean all the rules on machine 2 with:
+```
+iptables -F
+iptables -t nat -F
+iptables -X
+```
+
+### 3. Fwbuilder
+
+**TODO**
 
 [script for VirtualBox]: vbox_assignment4.sh
 [troubleshooting guide on telnet]: assignment1.md#establish-a-telnet-connection
