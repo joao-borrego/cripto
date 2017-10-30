@@ -1,10 +1,19 @@
-# Make snapshot of machine 1
-VBoxManage snapshot "machine1" take Machine1LinkedSnapshot
+#!/bin/bash
+
+# Make snapshot of Base machine
+VBoxManage snapshot "Base" take BaseSnapshot
 
 # Attack of the clones
-VBoxManage clonevm "machine1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine2 --register
-VBoxManage clonevm "machine1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine3 --register
-VBoxManage clonevm "machine1" --snapshot Machine1LinkedSnapshot --mode machine --options link --name machine4 --register
+VBoxManage clonevm "Base" --snapshot BaseSnapshot --mode machine --options link --name machine1 --register
+VBoxManage clonevm "Base" --snapshot BaseSnapshot --mode machine --options link --name machine2 --register
+VBoxManage clonevm "Base" --snapshot BaseSnapshot --mode machine --options link --name machine3 --register
+VBoxManage clonevm "Base" --snapshot BaseSnapshot --mode machine --options link --name machine4 --register
+
+# Clipboard sharing
+VBoxManage modifyvm "machine1" --clipboard bidirectional
+VBoxManage modifyvm "machine2" --clipboard bidirectional
+VBoxManage modifyvm "machine3" --clipboard bidirectional
+VBoxManage modifyvm "machine4" --clipboard bidirectional
 
 # Machine 1 interfaces
 VBoxManage modifyvm "machine1" --nic1 nat
