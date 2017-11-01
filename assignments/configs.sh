@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Delete all network connections
-sudo nmcli connection delete `nmcli -f NAME c | grep -v NAME`
+sudo nmcli -f NAME c | grep -v NAME | sed 's/.$//' | xargs -d "\n" nmcli connection delete
 
 # Machine 1
 if [ `grep '^' /sys/class/net/enp0s3/address` = "42:06:94:20:69:11" ]
