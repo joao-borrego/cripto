@@ -63,7 +63,7 @@ Looking at `exploit.c`:
 
 2) We allocate our malicious buffer *on the heap*! So it doesn't interfere with the rest. 600 Bytes are allocated to make sure it reaches the return address, since vuln.c buffer is 500 Bytes.
 
-3) We fill the entire malicious buffer with the desired return address (aka the address that we think is where the vuln.c buffer will be).
+3) We fill the entire malicious buffer with the desired return address (aka one address that we think is where the vuln.c buffer can be).
 
 4) We write around 200 Bytes of NOPs (each NOP is 1 Byte and its code is \x90) to the beggining of malicious buffer. The NOPs allow us to slide from byte to byte in the stack. It's needed because we arent entirely sure where the vuln.c buffer starts, so we don't want to put the malicious code right at the beggining, the NOPs will slide us to it.
 
@@ -91,10 +91,45 @@ Notice that you need to get the return address and put it little Endian due to i
 
 #### 2.4 Buffer overflow in stack using env variables
 
-TODO
+Read the "Small Bufffer Overflows" section of the [link](http://insecure.org/stf/smashstack.html) given if you haven't yet.
+
+When the buffer is too small, instead of putting the shellcode in it, we overwrite it with the address of environment variables in which we will store our shellcode.
+
+Give root priviliges to vuln2 like before.
+
+"The environment variables are stored in the top of the stack when the program is started." - So starting on the top "0xbffffffa", below the program execution, should be the shellcode.
+
+```
+ret = 0xbffffffa - strlen(shellcode) - strlen("./vuln2");
+```
+
+```
+| ... | ->shellcode | "./vuln2" | 0xbffffffa
+
+```
+
+Using a 40 Bytes malicious buffer, we overwrite the the 4 Byte buffer of vuln2.c with the address of the shellcode (env variable), this should be more than enough to reach the ret address.
+
+Compile and execute `./env_exploit` where all of this is done, and should be working.
+
+For the perl version, export the variable SHELLCODE by doing `source env_exploit.txt`. We now have to find the address of the variable, for that use `gdb` with a breakpoint in main `b main`. Do `x/20s $esp` and ENTER till you find the SHELLCODE address. Should be something like
+
+```
+0xbffffa64:	"SHELLCODE=", '\220' <repeats 100 times>, ...
+
+```
+
+Write a bash script using perl to print this address 10 times as an argument for vuln2. Notice that the word "SHELLCODE=" has its own space in stack too, so we need to sum its length to get the exact address. The word has 12 chars, 12 bytes. In hex the address should be 0xbffffa70 and the script:
+
+```
+./vuln2 `perl -e 'print "\x70\xfa\xff\xbf"x10'`
+
+```
+
+( Doesnt work tho :( )
 
 ### 3. String Formats
 
-TODO
+TODO (optional)
 
 
