@@ -26,9 +26,9 @@ To understand what a buffer overflow read [this](http://insecure.org/stf/smashst
 Assuming you have read the above, the stack for `overflow_function` should be something like
 
 ```
-bottom 										top
-of 											of
-mem		|      [buffer] [SFP] [RET] [*str] |mem	
+bottom 							top
+of 				 			of
+mem		|      [buffer] [SFP] [RET] [*str]      |mem	
 		|	   [   20B] [ 4B] [ 4B] [  4B] |
 
 ```
@@ -74,7 +74,7 @@ Looking at `exploit.c`:
 So our malicious buffer and stack will be something like
 
 ```
-buffer[600]: | NOPx200 | Shellcode | RETx~350          | '\0' |
+buffer[600]:  | NOPx200 | Shellcode | RETx~350          | '\0' |
 stack:       | vuln.c Buffer[500]      | SPF | RET | *bf | ............ |
 ```
 
