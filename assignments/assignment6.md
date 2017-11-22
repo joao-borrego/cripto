@@ -52,7 +52,7 @@ openssl genrsa -des3 -out my-ca.key 2048
 ```
 
 After the keys have been generated it is necessary to sign the public key with the CA's private key.
-This is a root-certificate (i.e. self-signed) the private signature key is the public key pair to be signed.
+This is a root-certificate (i.e. self-signed): the private signature key is the public key pair to be signed.
 A self-signed certificate is similar to a certificate signing request (CSR), which is a solicitaion of a digital identity certificate from a certificate authority.
 For this reason we use the same `req` command.
 However, the `x509` utility is used to generate the certificate itself.
@@ -74,6 +74,90 @@ To view the contents of your CA certificate you can run
 openssl x509 -in my-ca.crt -text 2>&1 | less
 ```
 
-2>&1 merges `stderr (2)` with `stdout (1)`, thus surpressing possible invalid permission errors
+2>&1 merges `stderr (2)` with `stdout (1)`, thus surpressing possible invalid permission errors.
 
 ### 3.2 Creating a certificate for the web server
+
+On machine 2 run
+
+```
+cd ~/csc-course/assignment6
+openssl genrsa -out csc-9-server.pem 1024
+```
+
+The latter command generates a key-pair for the 1024-bit RSA cypher.
+At this point we have already encountered .key, .crt and .pem files.
+For a decent clarification on the differences between them check [OpenSSL generated key formats].
+
+The generated keys need to be signed.
+For this reason generate a certificate request with
+
+```
+openssl req -new -key csc-9-server.pem -out csc-9-server.csr
+Country Name (2 letter code) [AU]: PT
+State or Province Name (full name) [Some-State]: Lisbon
+Locality Name (eg, city) []: Lisbon
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: CSC-9
+Organizational Unit Name (eg, section) []: Web server
+Common Name (e.g. server FQDN or YOUR name) []: 192.168.1.2
+Email Address []: email@address.pt
+```
+
+Notice that the common name is 192.168.1.2, which is the IP address that will be visible to our client in machine 1.
+
+You will be prompted to generate an extra challenge password.
+This challenge requested as part of the CSR generation is not the same thing as a passphrase used to encrypt the secret key.
+The "challenge password" is essentially a shared-secret nonce between you and the CA, embedded in the CSR, which the issuer may use to authenticate you should that ever be needed.
+You can disregard this step as well as the optional company name.
+
+The certificate request file has to be sent over to machine 3.
+You can pull the file from machine 3 by doing
+
+```
+cd /root/CA
+scp user@machine2:csc-course/assignment6/csc-9-server.csr .
+```
+
+This time, we specify the IP to be 192.168.3.1 or refer to machine 2 my its host name.
+Use the certificate from our CA to sign the web server certificate
+
+```
+sudo openssl x509 -req -in csc-9-server.csr -out csc-9-server.crt -sha1 -CA my-ca.crt -CAkey my-ca.key -CAcreateserial -days 3650
+# Enter previously chosen passphrase
+```
+
+Make all certificates accessible to non-root users with
+
+```
+sudo chmod 444 *.crt
+```
+
+The issued can certificate can be viewed using the same command
+
+```
+openssl x509 -in csc-9-server.crt -text -noout 2>&1 | less
+```
+
+The `noout` flag  prevents output of the encoded version of the request.
+
+### 3.3 Configuring Apache
+
+Now we will install the private key, server certificate and the certificate from your CA.
+
+In machine 2 run
+
+```
+cd ~/csc-course/assignment6
+scp user@machine3:/root/CA/csc-9-server.crt .
+scp user@machine3:/root/CA/my-ca.crt .
+sudo chmod 0400 *.crt
+```
+
+Should scp return a permission error, just copy the files elsewhere in machine 3 (for instance Desktop), and then use scp on machine 2 accordingly.
+Then, edit the Apache WebServer configuration file with your favourite text editor (<s>`vim`</s> Sublime Text).
+
+```
+subl /etc/apache2/sites-available/default-ssl
+```
+
+[OpenSSL generated key formats]: https://serverfault.com/questions/9708/what-is-a-pem-file-and-how-does-it-differ-from-other-openssl-generated-key-file
