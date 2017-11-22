@@ -7,6 +7,7 @@
   * [3.2 Creating a certificate for the web server](#32-creating-a-certificate-for-the-web-server)
   * [3.3 Configuring Apache](#33-configuring-apache)
   * [3.4 Configuration of authentication with user / password](#34-configuration-of-authentication-with-user--password)
+  * [3.5 Creating the client certificate](#35-creating-the-client-certificate)
 
 
 ### 1. Introduction
@@ -220,6 +221,16 @@ Finally check that Apache is listening on ports 80 and 443 with
 sudo netstat -tulpn
 ```
 
+The output should ìnclude something that resembles
+
+```
+tcp6       0      0 :::443                  :::*                    LISTEN      5142/apache2
+tcp6       0      0 :::80                   :::*                    LISTEN      5142/apache2
+```
+
+If not, there is a good chance you messed something up, and nothing from this point on will work.
+Be advised :) .
+
 ### 3.4 Configuration of authentication with user / password
 
 Still in machine 2 create the directory for the password file
@@ -264,6 +275,37 @@ Restart the Apache server with
 ```
 sudo service apache2 restart
 ```
+
+### 3.5 Creating the client certificate
+
+Go to machine 3 and generate a key pair for the client.
+Notice that in this case the use is not required to generate a request.
+The user just receives the certificaet and key in a single packet.
+
+```
+sudo -i
+cd /root/CA
+openssl genrsa -des3 -out client-cert.key 1024
+# Enter pass phrase for client-cert and confirm (e.g. inseguro)
+openssl req -new -key client-cert.key -out client-cert.csr
+# Enter entity details (Country, City, etc...)
+openssl x509 -req -in client-cert.csr -out client-cert.crt -sha1 -CA my-ca.crt -CAkey my-ca.key -CAcreateserial -days 3650
+# Enter passphrase for my-ca.key
+
+openssl pkcs12 -export -in client-cert.crt -inkey client-cert.key -name "User Cert" -out client-cert.p12
+# Enter password for client-cert.key
+# Enter export password and confirm
+openssl pkcs12 -in client-cert.p12 -clcerts -nokeys -info
+```
+
+The last two commands mention PKCS#12 which is one of the family of standards known as Publick-Key Criptography Standards (PKCS).
+Essentially we are converting a PEM certificate file and a private key to PKCS#12 denoted by the `.p12` extension.
+Finally make the bundle accessible to other users with
+
+```
+chmod 444 client-cert.p12
+```
+
 
 [Apache docs]: https://httpd.apache.org/docs/2.4/programs/htpasswd.html
 [index1]: assignment6/index1.html
