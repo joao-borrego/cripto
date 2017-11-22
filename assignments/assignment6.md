@@ -5,6 +5,7 @@
 - [3. HTTPS Secure Connections](#3-https-secure-connections)
   * [3.1 Creating a certification entity](#31-creating-a-certification-entity)
   * [3.2 Creating a certificate for the web server](#32-creating-a-certificate-for-the-web-server)
+  * [3.3 Configuring Apache](#33-configuring-apache)
 
 
 ### 1. Introduction
@@ -157,7 +158,65 @@ Should scp return a permission error, just copy the files elsewhere in machine 3
 Then, edit the Apache WebServer configuration file with your favourite text editor (<s>`vim`</s> Sublime Text).
 
 ```
-subl /etc/apache2/sites-available/default-ssl
+gksudo subl /etc/apache2/sites-available/default-ssl.conf
 ```
 
+Change the respective fields to match
+
+```
+# Server certificate
+SSLCertificateFile /home/user/csc-course/assignment6/csc-9-server.crt
+
+# Server private key
+SSLCertificateKeyFile /home/user/csc-course/assignment6/csc-9-server.pem
+
+# Server certificate chain
+SSLCertificateChainFile /home/user/csc-course/assignment6/my-ca.crt
+
+# CA
+SSLCACertificateFile /home/user/csc-course/assignment6/my-ca.crt
+```
+
+Create the directory for the protected content
+
+```
+sudo mkdir /var/www/SSL
+sudo chmod 0775 /var/www/SSL
+cd /var/www/SSL
+```
+
+Create a default index.html page with the content in [index1] or simply copy it
+
+```
+sudo cp ~/csc-course/assignment6/index1.html index.html
+```
+
+Create three other directories inside `www/SSL` and copy the respective index2 through 4 html files with
+
+```
+sudo mkdir Passneeded
+sudo cp ~/csc-course/assignment6/index2.html Passneeded/index.html
+sudo mkdir Certneeded
+sudo cp ~/csc-course/assignment6/index3.html Certneeded/index.html
+sudo mkdir PassAndCert
+sudo cp ~/csc-course/assignment6/index4.html PassAndCert/index.html
+```
+
+Restart the web server with
+
+```
+sudo a2ensite default-ssl
+sudo systemctl reload apache2
+sudo service apache2 restart
+```
+
+`a2ensite` is a service to enable or disable an apache2 site.
+
+Finally check that Apache is listening on ports 80 and 443 with
+
+```
+sudo netstat -tulpn
+```
+
+[index1]: assignment6/index1.html
 [OpenSSL generated key formats]: https://serverfault.com/questions/9708/what-is-a-pem-file-and-how-does-it-differ-from-other-openssl-generated-key-file
