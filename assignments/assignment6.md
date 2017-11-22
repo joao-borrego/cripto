@@ -210,7 +210,7 @@ sudo systemctl reload apache2
 sudo service apache2 restart
 ```
 
-`a2ensite` is a service to enable or disable an apache2 site.
+`a2ensite` is a service to enable an apache2 site. `a2dissite` disables an apache2 site.
 
 Finally check that Apache is listening on ports 80 and 443 with
 
