@@ -6,6 +6,7 @@
   * [3.1 Creating a certification entity](#31-creating-a-certification-entity)
   * [3.2 Creating a certificate for the web server](#32-creating-a-certificate-for-the-web-server)
   * [3.3 Configuring Apache](#33-configuring-apache)
+  * [3.4 Configuration of authentication with user / password](#34-configuration-of-authentication-with-user--password)
 
 
 ### 1. Introduction
@@ -218,5 +219,51 @@ Finally check that Apache is listening on ports 80 and 443 with
 sudo netstat -tulpn
 ```
 
+### 3.4 Configuration of authentication with user / password
+
+Still in machine 2 create the directory for the password file
+
+```
+sudo mkdir /etc/apache2/www
+```
+
+Create several users with access to protected pages
+
+```
+sudo htpasswd -c -m /etc/apache2/www/.htpasswd User1
+# Select new password (e.g. inseguro)
+
+# ...
+# htpasswd -c -m /etc/apache2/www/.htpasswd UserN
+```
+
+As per the [Apache docs] `htpasswd` is used to create and update the flat-files used to store usernames and password for basic authentication of HTTP users.
+The -c flag creates the passwd file whereas -m specifies MD5 encryption for the passwords.
+
+Configure the web server to protect the password directory
+
+```
+sudo chown www-data.www-data /etc/apache2/www/.htpasswd
+sudo chmod 0460 /etc/apache2/www/.htpasswd
+```
+
+Edit the /etc/apache2/sites-available/default-ssl.conf and append
+
+```
+<Directory "/var/www/SSL/Passneeded">
+    AuthType Basic
+    AuthName "Username and Password Required"
+    AuthUserFile /etc/apache2/www/.htpasswd
+    Require valid-user
+</Directory>
+```
+
+Restart the Apache server with
+
+```
+sudo service apache2 restart
+```
+
+[Apache docs]: https://httpd.apache.org/docs/2.4/programs/htpasswd.html
 [index1]: assignment6/index1.html
 [OpenSSL generated key formats]: https://serverfault.com/questions/9708/what-is-a-pem-file-and-how-does-it-differ-from-other-openssl-generated-key-file
