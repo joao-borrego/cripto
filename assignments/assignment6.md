@@ -8,6 +8,7 @@
   * [3.3 Configuring Apache](#33-configuring-apache)
   * [3.4 Configuration of authentication with user / password](#34-configuration-of-authentication-with-user--password)
   * [3.5 Creating the client certificate](#35-creating-the-client-certificate)
+  * [3.6 Importing the client and CA certificates into the browser](#36-importing-the-client-and-ca-certificates-into-the-browser)
 
 
 ### 1. Introduction
@@ -306,6 +307,23 @@ Finally make the bundle accessible to other users with
 chmod 444 client-cert.p12
 ```
 
+### 3.6 Importing the client and CA certificates into the browser
+
+Let us start with the server in machine 2.
+Import the CA certificate and the bundle with certificate and private key of the client
+
+```
+sudo scp user@machine3:/root/CA/my-ca.crt  /var/www
+sudo scp user@machine3:/root/CA/client-cert.p12  /var/www
+```
+
+(Again I had a permission error, so first copied the files to desktop in machine 3.)
+Now, on machine 1 open the browser and navigate to `https://192.168.1.2/my-ca.crt`.
+When prompted, choose to install the certificate.
+When asked where to place the certifcate choose **trusted root certificate** (or just check all the boxes?).
+
+Then, navigate to `https://192.168.1.2/client-cert.p12`
+Again, install the certificat but this time chose **personal**.
 
 [Apache docs]: https://httpd.apache.org/docs/2.4/programs/htpasswd.html
 [index1]: assignment6/index1.html
