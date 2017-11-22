@@ -152,7 +152,8 @@ In machine 2 run
 cd ~/csc-course/assignment6
 scp user@machine3:/root/CA/csc-9-server.crt .
 scp user@machine3:/root/CA/my-ca.crt .
-sudo chmod 0400 *.crt
+scp user@machine3:/root/CA/my-ca.key .
+sudo chmod 0400 *.key
 ```
 
 Should scp return a permission error, just copy the files elsewhere in machine 3 (for instance Desktop), and then use scp on machine 2 accordingly.
