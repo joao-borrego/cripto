@@ -9,7 +9,8 @@
   * [3.4 Configuration of authentication with user / password](#34-configuration-of-authentication-with-user--password)
   * [3.5 Creating the client certificate](#35-creating-the-client-certificate)
   * [3.6 Importing the client and CA certificates into the browser](#36-importing-the-client-and-ca-certificates-into-the-browser)
-
+  * [3.7 Apache configuration to accept authentication with certificates](#37-apache-configuration-to-accept-authentication-with-certificates)
+  * [3.8 Apache configuration to accept authentication with certificates and passwords](#38-apache-configuration-to-accept-authentication-with-certificates-and-passwords)
 
 ### 1. Introduction
 
@@ -206,6 +207,7 @@ sudo mkdir PassAndCert
 sudo cp ~/csc-course/assignment6/index4.html PassAndCert/index.html
 ```
 
+(I wouldn't bother closing this file as you still need to edit it a few more times.)
 Restart the web server with
 
 ```
@@ -323,7 +325,41 @@ When prompted, choose to install the certificate.
 When asked where to place the certifcate choose **trusted root certificate** (or just check all the boxes?).
 
 Then, navigate to `https://192.168.1.2/client-cert.p12`
-Again, install the certificat but this time chose **personal**.
+Download the file.
+You should then import the certificate using your web browser.
+For Mozilla Firefox go to `Preferences > Advanced > Certificates > View Certificates > Your Certificates` and import the downloaded client-cert.p12 file.
+
+### 3.7 Apache configuration to accept authentication with certificates
+
+In machine 2 edit /etc/apache2/sites-available/default-ssl.conf once more to append
+
+```
+<Directory "/var/www/SSL/Certneeded">
+    SSLVerifyClient require
+    SSLVerifyDepth 1
+</Directory>
+```
+
+Restart the web server with `service apache2 restart` and test in machine 1 by navigating in the browser to `https://192.168.1.2/Certneeded`.
+There should be a prompt confirming the use of the client certificate.
+Accept and verify that you can correctly acces the protected web page.
+
+### 3.8 Apache configuration to accept authentication with certificates and passwords
+
+Finally, edit the default-ssl and combine the password and certificate authentication by adding
+
+```
+<Directory "/var/www/SSL/PassAndCert">
+    SSLVerifyClient require
+    SSLVerifyDepth 1
+    AuthType Basic
+    AuthName "Username and Password Required"
+    AuthUserFile /etc/apache2/www/.htpasswd
+    Require valid-user
+</Directory>
+```
+
+Restart the Apache server and witness your amazing secure server in action by navigating to `https://192.168.1.2/SSL/PassAndCert/` in machine 1.
 
 [Apache docs]: https://httpd.apache.org/docs/2.4/programs/htpasswd.html
 [index1]: assignment6/index1.html
