@@ -182,6 +182,7 @@ SSLCertificateChainFile /home/user/csc-course/assignment6/my-ca.crt
 SSLCACertificateFile /home/user/csc-course/assignment6/my-ca.crt
 ```
 
+(I wouldn't bother closing this file as you still need to edit it a few more times.)
 Create the directory for the protected content
 
 ```
@@ -207,7 +208,6 @@ sudo mkdir PassAndCert
 sudo cp ~/csc-course/assignment6/index4.html PassAndCert/index.html
 ```
 
-(I wouldn't bother closing this file as you still need to edit it a few more times.)
 Restart the web server with
 
 ```
@@ -282,7 +282,7 @@ sudo service apache2 restart
 ### 3.5 Creating the client certificate
 
 Go to machine 3 and generate a key pair for the client.
-Notice that in this case the use is not required to generate a request.
+Notice that in this case the user is not required to generate a request.
 The user just receives the certificaet and key in a single packet.
 
 ```
