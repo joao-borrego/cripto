@@ -9,6 +9,8 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:11" ]
 		# Add connections
 		sudo nmcli connection delete "Wired connection 1"
 		sudo nmcli connection delete "Wired connection 2"
+		sudo nmcli connection delete "Internet"
+		sudo nmcli connection delete "eth0"
 		sudo nmcli connection add type ethernet ifname enp0s3 con-name "Internet"
 		sudo nmcli connection add type ethernet ifname enp0s8 con-name "eth0" ip4 192.168.1.1/24
 		# Forward packets
