@@ -39,11 +39,11 @@ VBoxManage modifyvm "IdP1" --nictype1 82540EM
 VBoxManage modifyvm "IdP1" --nicpromisc1 allow-all
 VBoxManage modifyvm "IdP1" --macaddress1 080043534331
 
-# WAYP interfaces
-VBoxManage modifyvm "WAYP" --nic1 intnet
-VBoxManage modifyvm "WAYP" --nictype1 82540EM
-VBoxManage modifyvm "WAYP" --nicpromisc1 allow-all
-VBoxManage modifyvm "WAYP" --macaddress1 080043534341
+# WAYF interfaces
+VBoxManage modifyvm "WAYF" --nic1 intnet
+VBoxManage modifyvm "WAYF" --nictype1 82540EM
+VBoxManage modifyvm "WAYF" --nicpromisc1 allow-all
+VBoxManage modifyvm "WAYF" --macaddress1 080043534341
 
 # IdP2 interfaces
 VBoxManage modifyvm "IdP2" --nic1 intnet
