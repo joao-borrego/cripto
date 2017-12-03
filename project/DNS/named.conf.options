@@ -15,8 +15,8 @@ options {
 	allow-transfer { none; };
 
 	forwarders {
-		8.8.4.4;
 		8.8.8.8;
+		8.8.4.4;
 	};
 
 	// If there is a firewall between you and nameservers you want

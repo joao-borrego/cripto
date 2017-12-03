@@ -23,11 +23,23 @@ For this, run the [configuration script] in every machine.
 ### 3. DNS
 
 The SP machine was chosen to be the domain name server in the network.
-The DNS folder must be copied to the same directory as the configuration script.
-Alternatively, just clone the repository to your home folder.
+Copy the DNS folder to the project's root directory.
+Running the configuration file should setup everything as needed.
+The configuration process can be briefly described as follows
 
-
-
+- Install BIND service and configure it to IPv4 mode
+- Configure DNS options in `named.conf.options` file
+    - Add machines to acl (Access Control List) trusted block
+    - Configure options block in order to
+        - allow recursive queries from "trusted" clients
+        - listen on private networks (using eth0, IP 192.168.1.1)
+        - disable zone transfers by default
+- Configure local options in `named.conf.local` file
+    - Add the forward zone "group9.csc.com"
+    - Add the reverse zone "168.192.in-addr.arpa" (note the octet reversal of 192.168)
+- Create forward zone file in `/etc/bind/zones/db.group9.csc.com`
+- Create reverse zone file in `/etc/bind/zones/db.192.168`
+- Restart BIND
 
 
 
