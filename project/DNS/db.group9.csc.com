@@ -18,6 +18,4 @@ ns1.group9.csc.com.	IN	A	192.168.1.1
 
 ; 192.168.0.0/16 - A records
 browser.group9.csc.com.	IN	A	192.168.1.2
-idp1.group9.csc.com.	IN	A	192.168.1.3
-wayf.group9.csc.com.	IN	A	192.168.1.4
-idp2.group9.csc.com.	IN	A	192.168.1.5
+idp.group9.csc.com.	IN	A	192.168.1.3
