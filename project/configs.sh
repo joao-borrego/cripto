@@ -7,7 +7,7 @@
 #autologin-user=user
 #autologin-user-timeout=0
 
-# SP/NS1
+# SP
 if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:11" ]
 	then
 
@@ -16,8 +16,8 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:11" ]
 		sudo nmcli connection delete "Wired connection 2"
 		sudo nmcli connection add type ethernet ifname enp0s3 con-name "Internet"
 		sudo nmcli connection add type ethernet ifname enp0s8 con-name "eth0" ip4 192.168.1.1/24
-		sudo sed -i 's/machine1/ns1/g' /etc/hostname
-		sudo sed -i 's/127.0.1.1	machine1/127.0.1.1	ns1/g' /etc/hosts
+		sudo sed -i 's/machine1/sp/g' /etc/hostname
+		sudo sed -i 's/127.0.1.1	machine1/127.0.1.1	sp/g' /etc/hosts
 		sudo apt update
 
 		# Configures IP forwarding
@@ -56,28 +56,34 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:11" ]
 		sudo cp SP/dir.conf /etc/apache2/mods-enabled/dir.conf
 		sudo systemctl restart apache2
 
+		########## SIMPLESAMLPHP ##########
 		# Setup Apache Virtual Hosts
-		sudo mkdir -p /var/www/csc.com/public_html
-		sudo chown -R $USER:$USER /var/www/csc.com/public_html
+		sudo mkdir -p /var/www/group9.csc.com/public_html
+		sudo chown -R $USER:$USER /var/www/group9.csc.com/public_html
 		sudo chmod -R 755 /var/www
-		sudo cp SP/index.html /var/www/csc.com/public_html/index.html
-		sudo cp SP/csc.com.conf /etc/apache2/sites-available/csc.com.conf
-		sudo a2ensite csc.com.conf
+		sudo cp SP/index.html /var/www/group9.csc.com/public_html/index.html
+		sudo cp SP/group9.csc.com.conf /etc/apache2/sites-available/group9.csc.com.conf
+		sudo a2ensite group9.csc.com.conf
 		sudo a2dissite 000-default.conf
 		sudo systemctl restart apache2
 
-		# Setup Apache Let's Encrypt
-		sudo add-apt-repository ppa:certbot/certbot
-		sudo apt update
-		sudo apt install python-certbot-apache
-		sudo certbot --apache -d csc.com -d www.csc.com
-
 		# Install SimpleSAMLphp
-		wget https://github.com/simplesamlphp/simplesamlphp/releases/download/v1.15.0/simplesamlphp-1.15.0.tar.gz
+		sudo wget https://github.com/simplesamlphp/simplesamlphp/releases/download/v1.15.0/simplesamlphp-1.15.0.tar.gz
 		tar zxf simplesamlphp-1.15.0.tar.gz
 		sudo cp -a simplesamlphp-1.15.0/. /var/simplesamlphp
 		rm -rf simplesamlphp-1.15.0
-		sudo apt-get install php-xml php-mbstring php-curl php-memcache php-ldap memcached
+		sudo apt install php-xml php-mbstring php-curl php-memcache php-ldap memcached
+		sudo cp SP/config.php /var/simplesamlphp/config/config.php
+		sudo systemctl restart apache2
+
+		########## SHIBBOLETH ##########
+		# Shibboleth SP
+		sudo apt install libapache2-mod-shib2
+		sudo a2enmod shib2
+		sudo cp SP/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
+		sudo /etc/init.d/shibd restart
+		sudo /etc/init.d/apache2 restart
+
 fi
 
 # Browser

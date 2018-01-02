@@ -2,7 +2,7 @@
 ; BIND reverse data file for local loopback interface
 ;
 $TTL	604800
-@	IN	SOA	ns1.group9.csc.com. admin.group9.csc.com. (
+@	IN	SOA	sp.group9.csc.com. admin.group9.csc.com. (
 			      3		; Serial
 			 604800		; Refresh
 			  86400		; Retry
@@ -11,9 +11,9 @@ $TTL	604800
 ;
 
 ; name servers
-	IN	NS	ns1.group9.csc.com.
+	IN	NS	sp.group9.csc.com.
 
 ; PTR Records
-1.1	IN	PTR	ns1.group9.csc.com.	; 192.168.1.1
+1.1	IN	PTR	sp.group9.csc.com.	; 192.168.1.1
 2.1	IN	PTR	browser.group9.csc.com.	; 192.168.1.2
 3.1	IN	PTR	idp.group9.csc.com.	; 192.168.1.3
