@@ -10,7 +10,7 @@ TOMCAT8_GROUP=tomcat8
 # JDK version 7. If JAVA_HOME is not set, some common directories for
 # OpenJDK and the Oracle JDK are tried.
 #JAVA_HOME=/usr/lib/jvm/java-7-openjdk
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-i386/jre
 
 # You may pass JVM startup parameters to Java here. If unset, the default
 # options will be: -Djava.awt.headless=true -XX:+UseConcMarkSweepGC
@@ -19,7 +19,7 @@ JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 # response time). If you use that option and you run Tomcat on a machine with
 # exactly one CPU chip that contains one or two cores, you should also add
 # the "-XX:+CMSIncrementalMode" option.
-JAVA_OPTS="-Djava.awt.headless=true -XX:+UseConcMarkSweepGC"
+# JAVA_OPTS="-Djava.awt.headless=true -XX:+UseConcMarkSweepGC"
 JAVA_OPTS="-Djava.awt.headless=true -XX:+DisableExplicitGC -XX:+UseParallelOldGC -Xms256m -Xmx2g -Djava.security.egd=file:/dev/./urandom"
 
 # To enable remote debugging uncomment the following line.

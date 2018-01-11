@@ -20,7 +20,7 @@ apache2 \
 ntp
 ```
 
-### Configure environment
+#### Configure environment
 
 Start a root terminal
 ```
@@ -44,6 +44,9 @@ source /etc/environment &&
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-i386/jre" &&
 export IDP_SRC="/usr/local/src/shibboleth-identity-provider-3.2.1"
 ```
+
+**Notice** that in an Ubuntu VM we install openjdk-**i386**.
+On another scenario we may have to replace **i386** by **amd64**. 
 
 Generate self-signed key and certificate
 ```
@@ -73,7 +76,7 @@ JAVA_OPTS="-Djava.awt.headless=true -XX:+DisableExplicitGC -XX:+UseParallelOldGC
 ```
 
 
-### Install Shibboleth Identity Provider v3.2.1
+#### Install Shibboleth Identity Provider v3.2.1
 
 Launch a root terminal
 ```
@@ -85,7 +88,7 @@ Download Shibboleth IdP v3.2.1
 cd /usr/local/src &&
 wget http://shibboleth.net/downloads/identity-provider/3.2.1/shibboleth-identity-provider-3.2.1.tar.gz
 && tar -xzvf shibboleth-identity-provider-3.2.1.tar.gz
-&& cd shibboleth-identity-provider-3.2.1
+&& cd /usr/local/src/shibboleth-identity-provider-3.2.1
 ```
 Run the installer
 ```
@@ -120,3 +123,101 @@ chown -R tomcat8 /opt/shibboleth-idp/metadata/ &&
 chown -R tomcat8 /opt/shibboleth-idp/credentials/ &&
 chown -R tomcat8 /opt/shibboleth-idp/conf/
 ```
+
+### Configuration
+
+#### Configure SSL on Apache2
+
+Edit the file `etc/apache2/sites-available/default-ssl.conf` as follows
+```
+<VirtualHost _default_:443>
+  ServerName idp.example.it:443
+  ServerAdmin admin@example.it
+  DocumentRoot /var/www/html
+  ...
+  
+  # Activate SSL
+  SSLEngine On
+  # Specify SSL protocols
+  SSLProtocol all -SSLv2 -SSLv3 -TLSv1
+  # Specify supported ciphers
+  SSLCipherSuite "kEDH+AESGCM:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES256-GCMSHA384:ECDHE-RSA-AES256-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSAAES256-SHA384:ECDHE-ECDSA-AES256-SHA256:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSAAES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA256:AES256-GCM-SHA384:!3DES:!DES:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!EDE3:!EDH-DSS-CBC-SHA:!EDH-DSSDES-CBC3-SHA:!EDH-RSA-DES-CBC-SHA:!EDH-RSA-DES-CBC3-SHA:!EXP-EDH-DSS-DES-CBCSHA:!EXP-EDH-RSA-DES-CBC-SHA:!EXPORT:!MD5:!PSK:!RC4-SHA:!aNULL:!eNULL"
+  
+  SSLHonorCipherOrder on
+  
+  # Disable SSL Compression
+  SSLCompression Off
+  # Enable HTTP Strict Transport Security with a 2 year duration
+  Header always set Strict-Transport-Security "max-age=63072000;includeSubDomains"
+  ...
+  
+  SSLCertificateFile /root/certificates/idp-cert-server.pem
+  SSLCertificateKeyFile /root/certificates/idp-key-server.pem
+  ...
+</VirtualHost>
+```
+
+Enable SSL and headers modules for Apache2
+```
+a2enmod ssl headers &&
+a2ensite default-ssl.conf &&
+a2dissite 000-default.conf &&
+systemctl reload apache2 &&
+service apache2 restart 
+```
+
+Configure Apache2 to open port 80 only for localhost ìn `/etc/apache2/ports.conf`
+```
+Listen 127.0.0.1:80
+```
+
+#### Configure Apache Tomcat 8
+
+Edit `/etc/tomcat8/server.xml` and
+1. Comment out the connector 8080 (HTTP) block
+2. Enable the connector 8009 (AJP)
+```
+<!--
+<Connector port="8080" protocol="HTTP/1.1"
+           connectionTimeout="20000"
+           URIEncoding="UTF-8"
+           redirectPort="8443" />
+-->
+...
+<!-- Define an AJP 1.3 Connector on port 8009 -->
+<Connector port="8009" protocol="AJP/1.3"
+           redirectPort="443" address="127.0.0.1"
+           enableLookups="false" tomcatAuthentication="false"/>
+```
+
+Create and edit the file `/etc/tomcat8/Catalina/localhost/idp.xml`
+```
+<Context docBase="/opt/shibboleth-idp/war/idp.war"
+         privileged="true"
+         antiResourceLocking="false"
+         swallowOutput="true"/>
+```
+
+Create an Apache2 configuration file for IdP `/etc/apache2/sites-available/idp.conf`
+```
+<Proxy ajp://localhost:8009>
+  Require all granted
+</Proxy>
+
+ProxyPass /idp ajp://localhost:8009/idp retry=5
+ProxyPassReverse /idp ajp://localhost:8009/idp retry=5
+```
+
+Enable **proxy_ajp** apache2 module and the IdP site
+```
+a2enmod proxy_ajp ; a2ensite idp.conf ; service apache2 restart
+```
+
+Modify `/etc/tomcat8/context.xml` to prevent a *lack of persistence of the session objects* error
+and uncomment the line
+```
+<Manager pathname="" />
+```
+
+Verify that the IdP is working by opening on your browser
+https://localhost/idp/shibboleth
