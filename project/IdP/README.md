@@ -50,6 +50,7 @@ On another scenario we may have to replace **i386** by **amd64**.
 
 Generate self-signed key and certificate
 ```
+mkdir /root/certificates
 openssl req -x509 -newkey rsa:4096 -keyout /root/certificates/idpkey-server.key -out /root/certificates/idp-cert-server.crt -nodes -days 3650
 ```
 Fill the required fields as follows

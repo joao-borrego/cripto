@@ -14,9 +14,11 @@ sudo cp configs/hosts /etc/hosts
 sudo cp configs/environment /etc/environment
 
 # Certificate and private key
-sudo mkdir /root/certficates
-sudo cp configs/idp-cert-server.crt /root/certficates/idp-cert-server.crt
-sudo cp configs/idp-key-server.key /root/certficates/idp-key-server.crt
+sudo mkdir /root/certificates
+sudo cp configs/idp-cert-server.crt /root/certificates/idp-cert-server.crt
+sudo cp configs/idp-key-server.key /root/certificates/idp-key-server.key
+sudo chmod 0755 /root/certificates/idp-cert-server.crt
+sudo chmod 0755 /root/certificates/idp-key-server.crt
 
 # Configure Tomcat 8
 update-alternatives --config java
@@ -47,6 +49,12 @@ sudo chown -R tomcat8 /opt/shibboleth-idp/logs/
 sudo chown -R tomcat8 /opt/shibboleth-idp/metadata/
 sudo chown -R tomcat8 /opt/shibboleth-idp/credentials/
 sudo chown -R tomcat8 /opt/shibboleth-idp/conf/
+# Enabl SSL and headers modules for Apache2
+sudo a2enmod ssl headers &&
+sudo a2ensite default-ssl.conf &&
+sudo a2dissite 000-default.conf &&
+sudo systemctl reload apache2 &&
+sudo service apache2 restart 
 
 # Configuration
 
@@ -58,8 +66,10 @@ sudo cp configs/server.xml /etc/tomcat8/server.xml
 sudo chmod 640 /etc/tomcat8/server.xml 
 sudo cp configs/idp.xml /etc/tomcat8/Catalina/localhost/idp.xml
 sudo cp configs/idp.conf /etc/apache2/sites-available/idp.conf
-sudo chmod 640 /etc/tomcat8/context.xml
 sudo cp configs/context.xml /etc/tomcat8/context.xml
+sudo chmod 640 /etc/tomcat8/context.xml
+# Enable proxy_ajp
+sudo a2enmod proxy_ajp ; sudo a2ensite idp.conf ; sudo service apache2 restart
 
 # Set permissions on config files
 # -rw-rw-rw-
