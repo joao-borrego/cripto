@@ -3,10 +3,10 @@
 sudo chmod 644 configs/* 
 
 # Tutorial Repo
-sudo git clone https://github.com/malavolti/HOWTO-Install-and-Configure-Shibboleth-Identity-Provider.git /usr/local/src/HOWTO-Shib-IdP &&
+sudo git clone https://github.com/malavolti/HOWTO-Install-and-Configure-Shibboleth-Identity-Provider.git /usr/local/src/HOWTO-Shib-IdP
 
 # Dependencies
-sudo apt update
+sudo apt -qq update
 sudo apt install vim default-jdk ca-certificates openssl tomcat8 apache2 ntp
 
 # Environment variables setup
@@ -29,7 +29,15 @@ sudo cp configs/tomcat8 /etc/default/tomcat8
 sudo wget http://shibboleth.net/downloads/identity-provider/3.2.1/shibboleth-identity-provider-3.2.1.tar.gz -nc -P /usr/local/src
 sudo tar -xzf /usr/local/src/shibboleth-identity-provider-3.2.1.tar.gz -C /usr/local/src
 # Install
-printf "\n[MESSAGE] Check tutorial and fill the fields accordingly.\n\n"
+printf "\n[TUTORIAL] Install Shibboleth\n\n"
+printf "\tSource (Distribution) Directory: [/usr/local/src/shibboleth-identity-provider-3.2.1]\n\
+	Installation Directory: [/opt/shibboleth-idp]\n\
+	Hostname: [localhost.localdomain] idp.example.it\n\
+	SAML EntityID: [https://idp.example.it/idp/shibboleth]\n\
+	Attribute Scope: [localdomain] example.it\n\
+	Backchannel PKCS12 Password: back_pass\n\
+	Cookie Encryption Key Password: crypt_pass\n\n"
+
 sudo bash /usr/local/src/shibboleth-identity-provider-3.2.1/bin/install.sh
 # Install JST libraries
 sudo wget https://build.shibboleth.net/nexus/service/local/repositories/thirdparty/content/javax/servlet/jstl/1.2/jstl-1.2.jar -P /opt/shibboleth-idp/edit-webapp/WEB-INF/lib -nc
