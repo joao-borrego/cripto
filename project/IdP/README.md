@@ -220,4 +220,12 @@ and uncomment the line
 ```
 
 Verify that the IdP is working by opening on your browser
-https://localhost/idp/shibboleth
+https://localhost/idp/shibboleth.
+If it does not, restart the machine and retry.
+You should be able to see an XML metadata file.
+
+#### [OPTIONAL] Speed up Tomcat 8 startup
+
+TODO
+
+#### Configure Shibboleth IdP v3.2.1 to release the persistent-id
