@@ -9,3 +9,9 @@ sudo cp configs/environment /etc/environment
 sudo mkdir /root/certficates
 sudo cp configs/idp-cert-server.crt /root/certficates/idp-cert-server.crt
 sudo cp configs/idpkey-server.key /root/certficates/idpkey-server.crt
+
+sudo cd /usr/local/src &&
+wget http://shibboleth.net/downloads/identity-provider/3.2.1/shibboleth-identity-provider-3.2.1.tar.gz
+&& tar -xzvf shibboleth-identity-provider-3.2.1.tar.gz
+&& cd shibboleth-identity-provider-3.2.1
+

@@ -34,14 +34,14 @@ Modify the host in `/etc/hosts`, replacing the entry with 127.0.1.1 by
 
 Define the environment variables for Java and IdP in `/etc/environment` by appending
 ```
-JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+JAVA_HOME="/usr/lib/jvm/java-8-openjdk-i386/jre"
 IDP_SRC="/usr/local/src/shibboleth-identity-provider-3.2.1"
 ```
 
 Export these variables to the current session
 ```
 source /etc/environment &&
-export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre" &&
+export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-i386/jre" &&
 export IDP_SRC="/usr/local/src/shibboleth-identity-provider-3.2.1"
 ```
 
@@ -67,7 +67,7 @@ update-alternatives --config javac
 ```
 Edit `/etc/default/tomcat8`
 ```
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-i386/jre
 ...
 JAVA_OPTS="-Djava.awt.headless=true -XX:+DisableExplicitGC -XX:+UseParallelOldGC -Xms256m -Xmx2g -Djava.security.egd=file:/dev/./urandom"
 ```
@@ -83,7 +83,40 @@ sudo su -
 Download Shibboleth IdP v3.2.1
 ```
 cd /usr/local/src &&
-wget http://shibboleth.net/downloads/identity-provider/latest/shibboleth-identity-provider-3.2.1.tar.gz &&
-tar -xzvf shibboleth-identity-provider-3.2.1.tar.gz &&
-cd shibboleth-identity-provider-3.2.1
+wget http://shibboleth.net/downloads/identity-provider/3.2.1/shibboleth-identity-provider-3.2.1.tar.gz
+&& tar -xzvf shibboleth-identity-provider-3.2.1.tar.gz
+&& cd shibboleth-identity-provider-3.2.1
+```
+Run the installer
+```
+./bin/install.sh
+```
+When prompted, fill in the following in the required fields
+```
+Source (Distribution) Directory: [/usr/local/src/shibboleth-identity-provider-3.2.1]
+Installation Directory: [/opt/shibboleth-idp]
+Hostname: [localhost.localdomain]
+idp.example.it
+SAML EntityID: [https://idp.example.it/idp/shibboleth]
+Attribute Scope: [localdomain]
+example.it
+Backchannel PKCS12 Password: back_pass
+Re-enter password: back_pass
+Cookie Encryption Key Password: crypt_pass
+Re-enter password: crypt_pass
+```
+
+Install JST libraries in order to visualise the IdP status page
+```
+cd /opt/shibboleth-idp/edit-webapp/WEB-INF/lib
+wget https://build.shibboleth.net/nexus/service/local/repositories/thirdparty/content/javax/servlet/jstl/1.2/jstl-1.2.jar
+cd /opt/shibboleth-idp/bin ; ./build.sh -Didp.target.dir=/opt/shibboleth-idp
+```
+
+Enable **tomcat8** user's access to the required directories
+```
+chown -R tomcat8 /opt/shibboleth-idp/logs/ &&
+chown -R tomcat8 /opt/shibboleth-idp/metadata/ &&
+chown -R tomcat8 /opt/shibboleth-idp/credentials/ &&
+chown -R tomcat8 /opt/shibboleth-idp/conf/
 ```
