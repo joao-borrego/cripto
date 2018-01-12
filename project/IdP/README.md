@@ -230,3 +230,106 @@ You should be able to see an XML metadata file.
 TODO
 
 #### Configure Shibboleth IdP v3.2.1 to release the persistent-id
+
+1. Test IdP is working by running
+```
+sudo bash /opt/shibboleth-idp/bin/status.sh
+```
+ 
+2. Install MySQL Connector Java and Tomcat JDBC libraries in order to use MySQL DB
+```
+sudo apt-get install mysql-server libmysql-java &&
+sudo cp /usr/share/java/mysql-connector-java.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/ &&
+sudo cp /usr/share/java/mysql-connector-java.jar /usr/share/tomcat8/lib/ &&
+sudo cp /usr/share/tomcat8/lib/tomcat-jdbc.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/
+```
+
+3. Install Common DBCP2 libraries used for generating saml-id
+```
+sudo wget https://archive.apache.org/dist/commons/dbcp/binaries/commons-dbcp2-2.1.1-bin.tar.gz -P /usr/local/src -nc &&
+sudo tar xzvf /usr/local/src/commons-dbcp2-2.1.1-bin.tar.gz -C /usr/local/src  &&
+sudo cp /usr/local/src/commons-dbcp2-2.1.1/commons-dbcp2-2.1.1.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/commons-dbcp2-2.1.1.jar
+```
+
+4. Install Tomcat Common Pool libraries used for generating saml-id
+```
+sudo wget https://archive.apache.org/dist/commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz -P /usr/local/src -nc &&
+sudo tar xzvf /usr/local/src/commons-pool2-2.4.2-bin.tar.gz -C /usr/local/src  &&
+sudo cp /usr/local/src/commons-pool2-2.4.2/commons-pool2-2.4.2.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/commons-pool2-2.4.2.jar
+```
+
+5. Rebuild Shibboleth **idp.war** with the new libraries
+```
+sudo bash /opt/shibboleth-idp/bin/build.sh
+```
+
+6. Create and prepare the **shibboleth** MySQL DB to host the persistent-id and StorageRecords.
+This will give access to shibboleth's database to **user**
+```
+sudo mysql -u root < configs/shibboleth-db.sql &&
+sudo service mysql restart
+```
+
+7. Enable the generation of the persistent-id.
+- Edit `/opt/shibboleth-idp/conf/saml-nameid.properties`
+```
+idp.persistentId.sourceAttribute = uid
+idp.persistentId.salt = ### result of 'openssl rand -base64 36'###
+idp.persistentId.generator = shibboleth.StoredPersistentIdGenerator
+idp.persistentId.dataSource = MyDataSource
+idp.persistentId.computed = shibboleth.ComputedPersistentIdGenerator
+```
+
+- Enable SAML2PersistentGenerator.
+Edit `/opt/shibboleth-idp/conf/saml-nameid.xml`
+    + Uncomment `<ref bean="shibboleth.SAML2PersistentGenerator" />`
+Edit `/opt/shibboleth-idp/conf/c14n/subject-c14n.xml`
+    + Uncomment `<ref bean="c14n/SAML2Persistent" />`
+
+8. Enable JPAStorageService for the StorageService of the user consent
+- Edit `/opt/shibboleth-idp/conf/global.xml` and add inside the <beans> tag
+```
+<!-- A DataSource bean suitable for use in the idp.persistentId.dataSource property. -->
+<bean id="MyDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+      p:driverClassName="com.mysql.jdbc.Driver"
+      p:url="jdbc:mysql://localhost:3306/shibboleth?autoReconnect=true"
+      p:username="##USER_DB##"
+      p:password="##PASSWORD##"
+      p:maxActive="10"
+      p:maxIdle="5"
+      p:maxWait="15000"
+      p:testOnBorrow="true"
+      p:validationQuery="select 1"
+      p:validationQueryTimeout="5" />
+
+<bean id="shibboleth.JPAStorageService" class="org.opensaml.storage.impl.JPAStorageService"
+      p:cleanupInterval="%{idp.storage.cleanupInterval:PT10M}"
+      c:factory-ref="shibboleth.JPAStorageService.entityManagerFactory"/>
+
+<bean id="shibboleth.JPAStorageService.entityManagerFactory"
+      class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+      <property name="packagesToScan" value="org.opensaml.storage.impl"/>
+      <property name="dataSource" ref="MyDataSource"/>
+      <property name="jpaVendorAdapter" ref="shibboleth.JPAStorageService.JPAVendorAdapter"/>
+      <property name="jpaDialect">
+        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+      </property>
+</bean>
+
+<bean id="shibboleth.JPAStorageService.JPAVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="database" value="MYSQL" />
+</bean>
+```
+**Attention** Modify **USER_DB_NAME** and **PASSWORD** of the **shibboleth** DB.
+
+- Modify the IdP configuration file `/opt/shibboleth-idp/conf/idp.properties`
+to instruct the IdP to store the data collected by User Consent into the **StorageRecords** table.
+```
+idp.session.StorageService = shibboleth.JPAStorageService
+idp.consent.StorageService = shibboleth.JPAStorageService
+idp.replayCache.StorageService = shibboleth.JPAStorageService
+idp.artifact.StorageService = shibboleth.JPAStorageService
+```
+
+9. Connect hte openLDAP to the IdP to allow user authentication
+- Edit `/opt/shibboleth-idp/conf/ldap.properties`

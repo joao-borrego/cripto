@@ -49,7 +49,7 @@ sudo chown -R tomcat8 /opt/shibboleth-idp/logs/
 sudo chown -R tomcat8 /opt/shibboleth-idp/metadata/
 sudo chown -R tomcat8 /opt/shibboleth-idp/credentials/
 sudo chown -R tomcat8 /opt/shibboleth-idp/conf/
-# Enabl SSL and headers modules for Apache2
+# Enable SSL and headers modules for Apache2
 sudo a2enmod ssl headers &&
 sudo a2ensite default-ssl.conf &&
 sudo a2dissite 000-default.conf &&
@@ -70,6 +70,39 @@ sudo cp configs/context.xml /etc/tomcat8/context.xml
 sudo chmod 640 /etc/tomcat8/context.xml
 # Enable proxy_ajp
 sudo a2enmod proxy_ajp ; sudo a2ensite idp.conf ; sudo service apache2 restart
+
+# Install MySQL Connector Java and Tomcat JDBC libraries
+sudo apt-get install mysql-server libmysql-java &&
+sudo cp /usr/share/java/mysql-connector-java.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/ &&
+sudo cp /usr/share/java/mysql-connector-java.jar /usr/share/tomcat8/lib/ &&
+sudo cp /usr/share/tomcat8/lib/tomcat-jdbc.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/
+
+# Install Common DBCP2 libraries
+sudo wget https://archive.apache.org/dist/commons/dbcp/binaries/commons-dbcp2-2.1.1-bin.tar.gz -P /usr/local/src -nc &&
+sudo tar xzv /usr/local/src/commons-dbcp2-2.1.1-bin.tar.gz -C /usr/local/src  &&
+sudo cp /usr/local/src/commons-dbcp2-2.1.1/commons-dbcp2-2.1.1.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/commons-dbcp2-2.1.1.jar
+
+# Install Tomcat Common Pool
+sudo wget https://archive.apache.org/dist/commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz -P /usr/local/src -nc &&
+sudo tar xzf /usr/local/src/commons-pool2-2.4.2-bin.tar.gz -C /usr/local/src  &&
+sudo cp /usr/local/src/commons-pool2-2.4.2/commons-pool2-2.4.2.jar /opt/shibboleth-idp/edit-webapp/WEB-INF/lib/commons-pool2-2.4.2.jar
+
+# Rebuild idp.war
+sudo bash /opt/shibboleth-idp/bin/build.sh
+
+# Create shibboleth user in MySQL DB
+sudo mysql -u root < configs/shibboleth-db.sql &&
+sudo service mysql restart
+
+# Enable the generation of the persistent-id
+sudo cp configs/saml-nameid.properties /opt/shibboleth-idp/conf/saml-nameid.properties
+# Enable the SAML2PersistentGenerator
+sudo cp configs/saml-nameid.xml /opt/shibboleth-idp/conf/saml-nameid.xml
+sudo cp configs/subject-c14n.xml /opt/shibboleth-idp/conf/c14n/subject-c14n.xml
+# Enable JPAStorageService
+sudo cp configs/global.xml /opt/shibboleth-idp/conf/global.xml
+sudo cp configs/idp.properties /opt/shibboleth-idp/conf/idp.properties
+
 
 # Set permissions on config files
 # -rw-rw-rw-
