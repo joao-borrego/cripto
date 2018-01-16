@@ -93,6 +93,9 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:21" ]
 		sudo nmcli connection add type ethernet ifname enp0s3 con-name "eth0" ip4 192.168.1.2/24
 		sudo sed -i 's/machine1/browser/g' /etc/hostname
 		sudo sed -i 's/127.0.1.1	machine1/127.0.1.1	browser/g' /etc/hosts
+		# DNS Client
+		sudo cp DNS/head /etc/resolvconf/resolv.conf.d/head
+		sudo resolvconf -u
 fi
 
 # IdP
@@ -102,6 +105,9 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:31" ]
  		sudo nmcli connection add type ethernet ifname enp0s3 con-name "eth0" ip4 192.168.1.3/24
 		sudo sed -i 's/machine1/idp/g' /etc/hostname
 		sudo sed -i 's/127.0.1.1	machine1/127.0.1.1	idp/g' /etc/hosts
+		# DNS Client
+		sudo cp DNS/head /etc/resolvconf/resolv.conf.d/head
+		sudo resolvconf -u
 fi
 
 
