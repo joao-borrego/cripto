@@ -4,7 +4,7 @@ sudo chmod 644 configs/*
 
 # Dependencies
 sudo apt -qq update
-sudo apt install vim default-jdk ca-certificates openssl tomcat8 apache2 ntp
+sudo apt install vim default-jdk ca-certificates openssl tomcat8 apache2 ntp -y
 
 # Environment variables setup
 sudo cp configs/hosts /etc/hosts

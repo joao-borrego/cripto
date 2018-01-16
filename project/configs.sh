@@ -27,11 +27,11 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:11" ]
 		sudo iptables -F FORWARD
 		sudo iptables -t nat -F
 		sudo iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
-		sudo apt install iptables-persistent
+		sudo apt install iptables-persistent -y
 		sudo bash -c "iptables-save > /etc/iptables.rules"
 
 		# Install DNS configs
-		sudo apt install bind9 bind9utils bind9-doc
+		sudo apt install bind9 bind9utils bind9-doc -y
 		sudo cp DNS/bind9 /etc/default/bind9
 		sudo cp DNS/named.conf.options /etc/bind/named.conf.options
 		sudo cp DNS/named.conf.local /etc/bind/named.conf.local
@@ -43,16 +43,18 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:11" ]
 		sudo resolvconf -u
 
 		# Install Apache
-		sudo apt install apache2
+		sudo apt install apache2 -y
 		sudo cp SP/apache2.conf /etc/apache2/apache2.conf
 		sudo systemctl restart apache2
 		sudo ufw allow in "Apache Full"
 
 		# Install MySQL
-		sudo apt install mysql-server
+		sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ""'
+		sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ""'
+		sudo apt-get -y install mysql-server
 
 		# Install PHP
-		sudo apt install php libapache2-mod-php php-mcrypt php-mysql
+		sudo apt install php libapache2-mod-php php-mcrypt php-mysql -y
 		sudo cp SP/dir.conf /etc/apache2/mods-enabled/dir.conf
 		sudo systemctl restart apache2
 
@@ -72,13 +74,13 @@ if [ `grep '^' /sys/class/net/enp0s3/address` = "08:00:43:53:43:11" ]
 		tar zxf simplesamlphp-1.15.0.tar.gz
 		sudo cp -a simplesamlphp-1.15.0/. /var/simplesamlphp
 		rm -rf simplesamlphp-1.15.0
-		sudo apt install php-xml php-mbstring php-curl php-memcache php-ldap memcached
+		sudo apt install php-xml php-mbstring php-curl php-memcache php-ldap memcached -y
 		sudo cp SP/config.php /var/simplesamlphp/config/config.php
 		sudo systemctl restart apache2
 
 		########## SHIBBOLETH ##########
 		# Shibboleth SP
-		sudo apt install libapache2-mod-shib2
+		sudo apt install libapache2-mod-shib2 -y 
 		sudo a2enmod shib2
 		sudo cp SP/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
 		sudo /etc/init.d/shibd restart
