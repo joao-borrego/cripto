@@ -1,0 +1,3 @@
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+JAVA_HOME="/usr/lib/jvm/java-8-openjdk-i386/jre"
+IDP_SRC="/usr/local/src/shibboleth-identity-provider-3.2.1"
