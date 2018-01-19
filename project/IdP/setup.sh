@@ -51,11 +51,12 @@ sudo a2enmod ssl headers &&
 sudo a2ensite default-ssl.conf &&
 sudo a2dissite 000-default.conf &&
 sudo systemctl reload apache2 &&
-sudo service apache2 restart 
+sudo service apache2 restart
 
 # Configuration
 
 # SSL on Apache2
+sudo mkdir /usr/local/idp/credentials -p
 sudo cp configs/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
 sudo cp configs/ports.conf /etc/apache2/ports.conf
 # Tomcat 8

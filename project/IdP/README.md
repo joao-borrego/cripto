@@ -224,3 +224,23 @@ Verify that the IdP is working by opening on your browser
 https://localhost/idp/shibboleth.
 If it does not, restart the machine and retry.
 You should be able to see an XML metadata file.
+
+#### Configure htpasswd for authentication
+
+We will use Apache's `htpasswd` for authenticating users.
+
+Add a new user to a new credentials database.
+```
+htpasswd -c /usr/local/idp/credentials/user.db user
+# Supply password inseguro and confirm
+```
+
+Protect to the remote authentication resource in `/etc/apache2/sites-available/idp.conf`
+```
+<Location /idp/Authn/RemoteUser>
+    AuthType Basic
+    AuthName "Group 9 IdP"
+    AuthUserFile /usr/local/idp/credentials/user.db
+    require valid-user
+</Location>
+```
