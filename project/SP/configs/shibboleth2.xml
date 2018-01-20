@@ -20,9 +20,9 @@
     -->
 
     <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
+    <!-- ADDED -->
     <ApplicationDefaults entityID="https://sp.group9.csc.com/shibboleth"
-                         REMOTE_USER="eppn persistent-id targeted-id"
-                         cipherSuites="ECDHE+AESGCM:ECDHE:!aNULL:!eNULL:!LOW:!EXPORT:!RC4:!SHA:!SSLv2">
+                         REMOTE_USER="eppn persistent-id targeted-id">
 
         <!--
         Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
@@ -33,8 +33,9 @@
         Note that while we default checkAddress to "false", this has a negative impact on the
         security of your site. Stealing sessions via cookie theft is much easier with this disabled.
         -->
+        <!-- ADDED -->
         <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
-                  checkAddress="false" handlerSSL="false" cookieProps="http">
+                  checkAddress="false" handlerSSL="true" cookieProps="https">
 
             <!--
             Configures SSO for a default IdP. To allow for >1 IdP, remove
@@ -42,8 +43,9 @@
             (Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
             You can also override entityID on /Login query string, or in RequestMap/htaccess.
             -->
+            <!-- [ADDED] -->
             <SSO entityID="https://idp.group9.csc.com/idp/shibboleth"
-                 discoveryProtocol="SAMLDS" discoveryURL="https://ds.example.org/DS/WAYF">
+                 discoveryProtocol="SAMLDS">
               SAML2 SAML1
             </SSO>
 
@@ -74,7 +76,7 @@
         <!-- Example of remotely supplied batch of signed metadata. -->
         <!--
         <MetadataProvider type="XML" validate="true"
-	      uri="http://example.org/federation-metadata.xml"
+          uri="http://example.org/federation-metadata.xml"
               backingFilePath="federation-metadata.xml" reloadInterval="7200">
             <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
             <MetadataFilter type="Signature" certificate="fedsigner.pem"/>
@@ -86,9 +88,8 @@
         -->
 
         <!-- Example of locally maintained metadata. -->
-        <!--
-        <MetadataProvider type="XML" validate="true" file="partner-metadata.xml"/>
-        -->
+        <!-- ADDED -->
+        <MetadataProvider type="XML" validate="true" file="idp-metadata.xml"/>
 
         <!-- Map to extract attributes from SAML assertions. -->
         <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
