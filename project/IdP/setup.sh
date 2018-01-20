@@ -11,11 +11,13 @@ sudo cp configs/hosts /etc/hosts
 sudo cp configs/environment /etc/environment
 
 # Certificate and private key
-sudo mkdir /root/certificates
-sudo cp configs/idp-cert-server.crt /root/certificates/idp-cert-server.crt
-sudo cp configs/idp-key-server.key /root/certificates/idp-key-server.key
-sudo chmod 0755 /root/certificates/idp-cert-server.crt
-sudo chmod 0755 /root/certificates/idp-key-server.key
+sudo mkdir -p /root/certificates
+sudo cp keys/idp.crt /root/certificates/idp.crt
+sudo cp keys/idp.key /root/certificates/idp.key
+sudo cp keys/my-ca.crt /root/certificates/my-ca.crt
+sudo chmod 0755 /root/certificates/idp.crt
+sudo chmod 0755 /root/certificates/idp.key
+sudo chmod 0755 /root/certificates/my-ca.crt
 
 # Configure Tomcat 8
 update-alternatives --config java
@@ -34,8 +36,8 @@ printf "\tSource (Distribution) Directory: [/usr/local/src/shibboleth-identity-p
 	Hostname: [localhost.localdomain] idp.group9.csc.com\n\
 	SAML EntityID: [https://idp.group9.csc.com/idp/shibboleth]\n\
 	Attribute Scope: [localdomain] group9.csc.com\n\
-	Backchannel PKCS12 Password: back_pass\n\
-	Cookie Encryption Key Password: crypt_pass\n\n"
+	Backchannel PKCS12 Password: inseguro\n\
+	Cookie Encryption Key Password: inseguro\n\n"
 
 sudo bash /usr/local/src/shibboleth-identity-provider-3.2.1/bin/install.sh
 # Install JST libraries
@@ -52,6 +54,10 @@ sudo a2ensite default-ssl.conf &&
 sudo a2dissite 000-default.conf &&
 sudo systemctl reload apache2 &&
 sudo service apache2 restart
+
+# Fix error
+sudo ln -s /usr/share/java/tomcat8-jsp-api.jar /usr/share/java/jsp-api-2.3.jar
+sudo ln -s /usr/share/java/tomcat8-el-api.jar /usr/share/java/el-api-3.0.jar
 
 # Configuration
 
