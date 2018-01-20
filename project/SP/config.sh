@@ -23,9 +23,6 @@ sudo chmod 0755 /root/certificates/sp.key
 sudo chmod 0755 /root/certificates/my-ca.crt
 sudo chmod 0755 /root/certificates/my-ca.key
 
-# Configure Apache2 to use SSL
-sudo cp configs/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
-
 # Setup Apache Virtual Hosts
 sudo mkdir -p /var/www/group9.csc.com/public_html
 sudo mkdir -p /var/www/group9.csc.com/public_html/resource
@@ -34,19 +31,23 @@ sudo chmod -R 755 /var/www
 sudo cp configs/index.html /var/www/group9.csc.com/public_html/index.html
 sudo cp configs/resource/resource.html /var/www/group9.csc.com/public_html/resource/index.html
 sudo cp configs/group9.csc.com.conf /etc/apache2/sites-available/group9.csc.com.conf
+# Configure Apache2 to use SSL
+sudo cp configs/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+
+# Install Shibboleth
+sudo apt install libapache2-mod-shib2 -y 
+sudo cp configs/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
+sudo shib-keygen -h sp.group9.csc.com
+sudo cp configs/idp-metadata.xml /etc/shibboleth/
 
 # Activate new modules and deactivate default
 sudo a2enmod ssl headers &&
+sudo a2enmod shib2 &&
 sudo a2ensite group9.csc.com.conf &&
 sudo a2ensite default-ssl.conf &&
 sudo a2dissite 000-default.conf &&
 sudo systemctl reload apache2 &&
 sudo service apache2 restart
 
-# Install Shibboleth
-sudo apt install libapache2-mod-shib2 -y 
-sudo a2enmod shib2
-sudo cp configs/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
-sudo shib-keygen -h sp.group9.csc.com
 sudo /etc/init.d/shibd restart
 sudo /etc/init.d/apache2 restart
