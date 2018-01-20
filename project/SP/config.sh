@@ -13,11 +13,15 @@ sudo apt install mysql-server -y
 sudo apt install php libapache2-mod-php php-mcrypt php-mysql -y
 
 # Get the certificate and self signed key
-mkdir /root/certificates
-sudo cp configs/keys/sp.crt /root/certificates/sp.crt
-sudo cp configs/keys/sp.key /root/certificates/sp.key
+sudo mkdir /root/certificates -p
+sudo cp keys/sp.crt /root/certificates/sp.crt
+sudo cp keys/sp.key /root/certificates/sp.key
+sudo cp keys/my-ca.crt /root/certificates/my-ca.crt
+sudo cp keys/my-ca.key /root/certificates/my-ca.key
 sudo chmod 0755 /root/certificates/sp.crt
 sudo chmod 0755 /root/certificates/sp.key
+sudo chmod 0755 /root/certificates/my-ca.crt
+sudo chmod 0755 /root/certificates/my-ca.key
 
 # Configure Apache2 to use SSL
 sudo cp configs/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
