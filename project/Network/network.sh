@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 
 # Configure hostname and network connections
 #

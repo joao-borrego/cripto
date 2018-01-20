@@ -1,4 +1,4 @@
-### Network setup
+### Network Setup
 
 Our internal network includes 3 separate machines:
 
@@ -12,9 +12,10 @@ This machine will be cloned and its hard drive shared with the other virtual mac
 We used a 10 GB VMDK hard drive.
 During the installation we chose the credentials username `user`, host `user` and password `inseguro`.
 
-#### Virtual Machines setup
+#### Virtual Machines Setup
 
 We have written a script to automatically create our machine clone from the Base VM, using `VBoxManage` utility.
+It assumes the base machine is named `Base`.
 Each machine should have 2 network adapters
 
 1. `NAT` for internet access,
@@ -33,7 +34,7 @@ The MAC addresses of the adapters each machine are used later for identifying th
 
 By running [vbox.sh][vbox.sh] we should obtain the desired setup.
 
-#### Network connections setup
+#### Network Connections Setup
 
 Now we wish to configure the interface in each machine so they can have fixed IPs in the internal network.
 This is required for our DNS to work.
