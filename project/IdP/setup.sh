@@ -75,6 +75,17 @@ sudo chmod 640 /etc/tomcat8/context.xml
 # Enable proxy_ajp
 sudo a2enmod proxy_ajp ; sudo a2ensite idp.conf ; sudo service apache2 restart
 
+# Configure IdP to handle SP requests
+
+sudo cp configs/metadata-providers.xml /opt/shibboleth-idp/conf/metadata-providers.xml
+sudo cp configs/idp.properties /opt/shibboleth-idp/conf/idp.properties
+sudo cp configs/idp_ssl.conf /etc/apache2/sites-available/idp.conf
+
+sudo cp configs/sp-metadata.xml /opt/shibboleth-idp/conf/sp-metadata.xml
+sudo chmod 0755 /opt/shibboleth-idp/conf/sp-metadata.xml
+
+sudo systemctl reload apache2 && sudo service apache2 restart && sudo service tomcat8 restart
+
 # Set permissions on config files
 # -rw-rw-rw-
 sudo chmod 666 configs/*

@@ -238,4 +238,8 @@ Protect to the remote authentication resource in `/etc/apache2/sites-available/i
 </Location>
 ```
 
+#### Configure IdP to handle SP requests
+
+
+
 [keys]: keys/README.md
