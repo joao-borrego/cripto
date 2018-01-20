@@ -3,11 +3,6 @@
 
 ### Installation
 
-Start by cloning the tutorial repository to `usr/local/src`
-```
-sudo git clone https://github.com/malavolti/HOWTO-Install-and-Configure-Shibboleth-Identity-Provider.git /usr/local/src/HOWTO-Shib-IdP
-```
-
 Install dependencies
 ```
 sudo apt update &&
@@ -29,7 +24,7 @@ sudo su -
 
 Modify the host in `/etc/hosts`, replacing the entry with 127.0.1.1 by
 ```
-127.0.1.1 idp.example.org idp
+127.0.1.1 idp.group9.csc.com idp
 ```
 
 Define the environment variables for Java and IdP in `/etc/environment` by appending
@@ -48,21 +43,8 @@ export IDP_SRC="/usr/local/src/shibboleth-identity-provider-3.2.1"
 **Notice** that in an Ubuntu VM we install openjdk-**i386**.
 On another scenario we may have to replace **i386** by **amd64**. 
 
-Generate self-signed key and certificate
-```
-mkdir /root/certificates
-openssl req -x509 -newkey rsa:4096 -keyout /root/certificates/idpkey-server.key -out /root/certificates/idp-cert-server.crt -nodes -days 3650
-```
-Fill the required fields as follows
-```
-Country Name (2 letter code) [AU]:PT
-State or Province Name (full name) [Some-State]:Lisbon
-Locality Name (eg, city) []:Lisbon
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:CSC-9
-Organizational Unit Name (eg, section) []:CA-9
-Common Name (e.g. server FQDN or YOUR name) []:CA9
-Email Address []:email@address.pt
-```
+We will need SSL keys and certificate.
+The specifics are further detailed in [keys].
 
 Configure Tomcat 8
 ```
@@ -104,10 +86,10 @@ idp.group9.csc.com
 SAML EntityID: [https://idp.group9.csc.com/idp/shibboleth]
 Attribute Scope: [localdomain]
 group9.csc.com
-Backchannel PKCS12 Password: back_pass
-Re-enter password: back_pass
-Cookie Encryption Key Password: crypt_pass
-Re-enter password: crypt_pass
+Backchannel PKCS12 Password: inseguro
+Re-enter password: inseguro
+Cookie Encryption Key Password: inseguro
+Re-enter password: inseguro
 ```
 
 Install JST libraries in order to visualise the IdP status page
@@ -132,7 +114,7 @@ chown -R tomcat8 /opt/shibboleth-idp/conf/
 Edit the file `etc/apache2/sites-available/default-ssl.conf` as follows
 ```
 <VirtualHost _default_:443>
-  ServerName idp.example.it:443
+  ServerName idp.group9.csc.com:443
   ServerAdmin admin@example.it
   DocumentRoot /var/www/html
   ...
@@ -152,8 +134,8 @@ Edit the file `etc/apache2/sites-available/default-ssl.conf` as follows
   Header always set Strict-Transport-Security "max-age=63072000;includeSubDomains"
   ...
   
-  SSLCertificateFile /root/certificates/idp-cert-server.pem
-  SSLCertificateKeyFile /root/certificates/idp-key-server.pem
+  SSLCertificateFile /root/certificates/idp.crt
+  SSLCertificateKeyFile /root/certificates/idp.key
   ...
 </VirtualHost>
 ```
@@ -170,6 +152,15 @@ service apache2 restart
 Configure Apache2 to open port 80 only for localhost ìn `/etc/apache2/ports.conf`
 ```
 Listen 127.0.0.1:80
+```
+
+##### [IMPORTANT] Fix tomcat error
+
+Tomcat may throw an exception claiming that some files were not found.
+This can be easily fixed by creating symbolic links to these files in the same directory.
+```
+sudo ln -s /usr/share/java/tomcat8-jsp-api.jar /usr/share/java/jsp-api-2.3.jar
+sudo ln -s /usr/share/java/tomcat8-el-api.jar /usr/share/java/el-api-3.0.jar
 ```
 
 #### Configure Apache Tomcat 8
@@ -244,3 +235,5 @@ Protect to the remote authentication resource in `/etc/apache2/sites-available/i
     require valid-user
 </Location>
 ```
+
+[keys]: keys/README.md
