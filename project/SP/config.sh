@@ -2,7 +2,7 @@
 
 # Install Apache
 sudo apt install apache2 -y
-sudo cp SP/apache2.conf /etc/apache2/apache2.conf
+sudo cp configs/apache2.conf /etc/apache2/apache2.conf
 sudo systemctl restart apache2
 
 # Install MySQL
