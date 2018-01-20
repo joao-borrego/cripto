@@ -46,5 +46,7 @@ The following setup is achieved by running [network.sh][network.sh].
 | Browser | browser  | 192.168.1.2/24 |
 | IdP     | idp      | 192.168.1.3/24 |
 
+In order for the hostname to change you have to reboot each machine.
+
 [vbox.sh]: vbox.sh
 [network.sh]: network.sh
