@@ -140,6 +140,8 @@ Edit the file `etc/apache2/sites-available/default-ssl.conf` as follows
 </VirtualHost>
 ```
 
+**Do not forget to copy the key and certificate** to `/root/certificates/` directory.
+
 Enable SSL and headers modules for Apache2
 ```
 a2enmod ssl headers &&
