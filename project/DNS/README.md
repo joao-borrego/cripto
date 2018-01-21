@@ -33,7 +33,7 @@ acl "trusted" {
 	192.168.1.3;	# IdP
 };
 ```
-Now, configure the `options` block below, in order to enable listenning to the internal network and disable zone transfers.
+Now, configure the `options` block below, in order to enable listening to the internal network and disable zone transfers.
 The latter are used to replicate DNS databases across servers, which we will not require.
 ```
 options {
@@ -85,7 +85,7 @@ $TTL	604800
 sp.group9.csc.com.		IN	A	192.168.1.1
 
 ; 192.168.0.0/16 - A records
-browser.group9.csc.com.	IN	A	192.168.1.2
+browser.group9.csc.com.		IN	A	192.168.1.2
 idp.group9.csc.com.		IN	A	192.168.1.3
 ```
 
@@ -126,5 +126,7 @@ Then, they must generate a new configuration by running
 ```
 sudo resolvconf -u
 ```
+
+Next: [SP](https://github.com/jsbruglie/cripto/blob/dev/project/README.md#4-sp)
 
 [dns.sh]: dns.sh
