@@ -14,15 +14,18 @@ Our goal is to create a SAML2.0 federation.
 Security Assertion Markup Language (SAML) is an open standard for authentication and authorisation purposes.
 It consists of an XML-based markup language typically used between an identity provider and a service provider.
 
-The intended setup is a small SAML federation with only 3 entities:
+The single most important use case that SAML addresses is web browser Single Sign-On (SSO). This can be implemented in two ways, in a SP-initiated scenario or in an IdP-initiated scenario. In the first case, an unauthenticated user tries to directly access a SP protected resource and gets redirected to an IdP to sign on. In the second scenario, the user is visiting an IdP already authenticated and tries to access a linked partner SP.
+
+The intended setup is a small SAML federation with an SP-initiated scenario and only 3 entities:
 
 1. Service Provider (SP)
 2. Server Client (Browser) 
-3. Indentity Provider (IdP)
+3. Identity Provider (IdP)
 
+Each of the aforementioned entities will run on a dedicated virtual machine. They will be connected by an internal virtual network. 
 
-Each of the aforementioned entities will run on a dedicated virtual machine.
-They will be connected by an internal virtual network.
+We will be using Shibboleth [[1]], a framework for federated SSO, to implement this.
+
 The process of achieving this can be mostly automated, assuming a clean install environment.
 For this reason we have written scripts to automatically install required dependencies or copy pre-filled configuration files, which was useful for testing purposes and ensuring that the process could be replicated.
 
@@ -38,11 +41,11 @@ We describe the process of installing a Domain Name Server in [DNS].
 ### 4. SP
 
 The service provider receives and accepts authentication assertions.
-Our objective is to have a protecetd resource hosted in a given web server.
+Our objective is to have a protected resource hosted in a given web server.
 In this case, this will also be hosted in the SP machine.
-Whenever a client tries to access this private resource, the SP will redirect the user to the IdP for authentication.
+Whenever a client tries to access this private resource without being signed on, the SP will redirect the user to the IdP for authentication.
 Afterwards, a sucessfully authenticated user will then reply to the SP and the resource will be supplied.
-The figure below illustrates the message flow [[1]].
+The figure below illustrates the message flow [[2]].
 
 <p align="center"> 
 	<img src=images/saml_flow.gif>
@@ -95,4 +98,5 @@ autologin-user-timeout=0
 [SP]: SP/README.md
 [IdP]: IdP/README.md
 
-[1]: http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-tech-overview-2.0-cd-02.html#5.1.Web
+[1]: https://www.shibboleth.net/
+[2]: http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-tech-overview-2.0-cd-02.html#5.1.Web
