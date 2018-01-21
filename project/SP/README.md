@@ -1,8 +1,8 @@
-# SP configuration
+### Service Provider configuration
 
-## Install Apache 
+#### Install Apache 
 
-First apache server is installed to futerely simulate a protected resource and to generate its protection using shibboleth.
+To implement the SP, we need a web server, since half of Shibboleth runs within it and also our SP will be the host for the protected resource. For that, we will be using Apache.
 
 ```
 sudo apt install apache2 -y
@@ -14,41 +14,66 @@ To avoid a syntax warning message about the global servername, run the following
 sudo cp configs/apache2.conf /etc/apache2/apache2.conf
 ```
 
-Restar Apache to implement the changes.
+Restart Apache to implement the changes.
 
 ```
 sudo systemctl restart apache2
 ```
 
-## Install MySQL
+#### Install MySQL and PHP
 
-This will be necessary for the shibboleth inner mechanisms.
-Use `inseguro` as the password.
+MySQL might be necessary for the shibboleth inner mechanisms and also useful to create a future real application.
+Install them and use `inseguro` as the password when prompted.
 
 ```
 sudo apt install mysql-server -y
-```
 
-
-## Install PHP
-
-```
 sudo apt install php libapache2-mod-php php-mcrypt php-mysql -y
 ```
 
-## Get the certificate and self signed key
+#### Get the certificate and self signed keys
 
-This was previously generated using the method of [assignment 6](https://github.com/jsbruglie/cripto/blob/dev/assignments/assignment6.md), now just copy it to a directory to use after and give it `0755` permissions (User:`rwx` Group:`r-x` World:`r-x`).
+To employ TLS, copy the pre-generated keys and certificates to `/root/certificates` and give it `0755` permissions (User:`rwx` Group:`r-x` World:`r-x`).
 
 ```
-mkdir /root/certificates
+sudo mkdir /root/certificates -p
 sudo cp configs/sp.crt /root/certificates/sp.crt
 sudo cp configs/sp.key /root/certificates/sp.key
 sudo chmod 0755 /root/certificates/sp.crt
 sudo chmod 0755 /root/certificates/sp.key
 ```
 
-## Configure Apache2 to use SSL
+#### Setup Apache Virtual Hosts
+
+Create a directory in `/var/www/group9.csc.com/` to keep the `index.html`, this is the page that appears when the user lands in `https://sp.group9.csc.com` or `http://sp.group9.csc.com`. And also a directory to keep the protected resource, which will be accessed via `https://sp.group9.csc.com/resource` or `http://sp.group9.csc.com/resource`.
+
+```
+sudo mkdir -p /var/www/group9.csc.com/public_html
+sudo mkdir -p /var/www/group9.csc.com/public_html/resource
+```
+
+Change the ownership of the directory to user and user group. Give it `0755` permissions.
+
+```
+sudo chown -R $USER:$USER /var/www/group9.csc.com/public_html
+sudo chmod -R 755 /var/www
+```
+
+Copy the pre-generated `configs/index.html` and `configs/resource/resource.html` to the new directories, or create your own.
+
+```
+sudo cp configs/index.html /var/www/group9.csc.com/public_html/index.html
+sudo cp configs/resource/resource.html /var/www/group9.csc.com/public_html/resource/index.html
+```
+
+Copy `configs/group9.csc.com.conf` to `/etc/apache2/sites-available/`. This is the virtual host config file for HTTP requests.
+
+```
+sudo cp configs/group9.csc.com.conf /etc/apache2/sites-available/group9.csc.com.conf
+```
+
+
+### Configure Apache2 to use SSL
 
 Instead of using `000-default.conf` file in the `/etc/apache2/sites-available/`, use `default-ssl.conf` file that contains some default SSL configuration already. For that copy the `configs/default-ssl.conf` to `/etc/apache2/sites-available/`. 
 
@@ -59,7 +84,7 @@ sudo cp configs/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
 This file was edited for Apache to look for the SSL certificate and key in another location and to change the `ServerName`.
 
 
-## Setup Apache Virtual Hosts
+
 
 
 
