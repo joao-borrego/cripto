@@ -74,6 +74,9 @@ If these files are missing or outdated, it is very likely that the system **will
 
 Since this project is merely a proof-of-concept implementation, whenever we were asked to provide a passphrase or password we always set it to `inseguro` (which stands for *unsafe* in portuguese, in a jokingly self-aware fashion).
 
+#### Operating system
+
+This setup was tested in Lubuntu 16.04.3 LTS.
 
 #### Prevent automatic log-off in Lubuntu
 
