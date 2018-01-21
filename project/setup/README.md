@@ -14,7 +14,7 @@ During the installation we chose the credentials username `user`, host `user` an
 
 #### Virtual Machines Setup
 
-We have written a script to automatically create our machine clone from the Base VM, using `VBoxManage` utility.
+We have written a script to automatically create our machine clones from the Base VM, using `VBoxManage` utility.
 It assumes the base machine is named `Base`.
 Each machine should have 2 network adapters
 
@@ -47,7 +47,9 @@ The following setup is achieved by running [network.sh][network.sh].
 | Browser | browser  | 192.168.1.2/24 |
 | IdP     | idp      | 192.168.1.3/24 |
 
-In order for the hostname to change you have to reboot each machine.
+In order for the hostname to change you have to **reboot** each machine.
+
+Next: [DNS](https://github.com/jsbruglie/cripto/tree/dev/project#3-dns)
 
 [vbox.sh]: vbox.sh
 [network.sh]: network.sh
