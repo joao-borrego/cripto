@@ -38,7 +38,6 @@ sudo cp configs/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
 sudo apt install libapache2-mod-shib2 -y 
 sudo shib-keygen -h sp.group9.csc.com -f
 sudo cp configs/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
-sudo cp configs/idp-metadata.xml /etc/shibboleth/
 
 # Activate new modules and deactivate default
 sudo a2enmod ssl headers &&
