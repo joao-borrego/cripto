@@ -8,7 +8,6 @@
         - [2.1.3 Reject telnet connections from a specific IP address](#213-reject-telnet-connections-from-a-specific-ip-address)
         - [2.1.4 Reject telnet connections from a specific subnet](#214-reject-telnet-connections-from-a-specific-subnet)
     + [2.2 Redirect connections](#22-redirect-connections)
-* [3. Fwbuilder](#3-fwbuilder)
 
 ### 1. Introduction
 
@@ -145,10 +144,6 @@ iptables -F
 iptables -t nat -F
 iptables -X
 ```
-
-### 3. Fwbuilder
-
-**TODO**
 
 [script for VirtualBox]: vbox_assignment4.sh
 [troubleshooting guide on telnet]: assignment1.md#establish-a-telnet-connection

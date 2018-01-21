@@ -26,17 +26,17 @@ To understand what a buffer overflow read [this](http://insecure.org/stf/smashst
 Assuming you have read the above, the stack for `overflow_function` should be something like
 
 ```
-bottom 							top
-of 				 			of
-mem		|      [buffer] [SFP] [RET] [*str]      |mem	
-		|	   [   20B] [ 4B] [ 4B] [  4B] |
+bottom                                         top
+of                                             of
+mem     |   [buffer] [SFP] [RET] [*str]      | mem    
+        |   [   20B] [ 4B] [ 4B] [  4B]      |
 
 ```
 
 Compile the code and run `gdb overflow`. Using `disas overflow_function`, its observable that the compiler allocated 40 Bytes instead of 32 Bytes. (Why? No idea, something to do with the way it allocs memory)
 
 ```
-0x0804843e <+3>:	sub    $0x28,%esp
+0x0804843e <+3>:    sub    $0x28,%esp
 ```
 
 Using a `big_string` of 32 Bytes, the program crashes, as it should since its trying to access memory passed 20 Bytes to write on it. Yet it does not write 'AAAAA' to the RET address. Using 36 Bytes, it will fully write the RET address, which is visible when you run the program in gdb. (Why? No idea)
@@ -74,8 +74,8 @@ Looking at `exploit.c`:
 So our malicious buffer and stack will be something like
 
 ```
-buffer[600]:  | NOPx200 | Shellcode | RETx~350          | '\0' |
-stack:       | vuln.c Buffer[500]      | SPF | RET | *bf | ............ |
+buffer[600]:  | NOPx200 | Shellcode     | RETx~350        | '\0'         |
+stack:        | vuln.c Buffer[500]      | SPF | RET | *bf | ............ |
 ```
 
 If everything works, it will open a shell as root.
@@ -85,7 +85,9 @@ If everything works, it will open a shell as root.
 This does exactly the same as before in one line and using perl...
 Notice that you need to get the return address and put it little Endian due to intel CPU.
 
-` "\x3c\xed\xff\xbf"x88 ` 
+```
+"\x3c\xed\xff\xbf"x88
+``` 
 
 88 Bytes of this should be enough to reach the return address.
 
@@ -115,7 +117,7 @@ Compile and execute `./env_exploit` where all of this is done, and should be wor
 For the perl version, export the variable SHELLCODE by doing `source env_exploit.txt`. We now have to find the address of the variable, for that use `gdb` with a breakpoint in main `b main`. Do `x/20s $esp` and ENTER till you find the SHELLCODE address. Should be something like
 
 ```
-0xbffffa64:	"SHELLCODE=", '\220' <repeats 100 times>, ...
+0xbffffa64: "SHELLCODE=", '\220' <repeats 100 times>, ...
 
 ```
 
@@ -125,11 +127,3 @@ Write a bash script using perl to print this address 10 times as an argument for
 ./vuln2 `perl -e 'print "\x70\xfa\xff\xbf"x10'`
 
 ```
-
-( Doesnt work tho :( )
-
-### 3. String Formats
-
-TODO (optional)
-
-
