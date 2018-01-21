@@ -171,58 +171,58 @@ sudo nano /etc/apache2/sites-available/group9.csc.com.conf
         Require valid-user
 </Location>
 ```
-Sets up apache to enable shibboleth. The two generic commands around the middle one are Apache's way of signaling that you want the module to run, and that any authenticated user is acceptable. The middle setting tells the SP to perform authentication any time a session isn't already in place, which ensures that the authorization rule can be met [1].
+Sets up apache to enable shibboleth. The two generic commands around the middle one are Apache's way of signaling that you want the module to run, and that any authenticated user is acceptable. The middle setting tells the SP to perform authentication any time a session isn't already in place, which ensures that the authorization rule can be met [[1]].
 
 ##### For HTTPS
 
-Now we will do the same for HTTPS requests, but also define the configuration for the SSL module. Edit the `/etc/apache2/sites-enabled/default-ssl.conf`
+Now we will do the same for HTTPS requests, but also define the configuration for the SSL module. Edit the `/etc/apache2/sites-enabled/default-ssl.conf`.
 
 ```
 sudo nano /etc/apache2/sites-enabled/default-ssl.conf
 ```
 
-Add the same content as previously, and additionally write/uncoment the following lines
+Add the same content as previously at the beggining of the file and additionally write/uncoment the following lines
 
 ```
 <IfModule mod_ssl.c>
   <VirtualHost _default_:443>
     ...
-	  #   SSL Engine Switch:
-		#   Enable/Disable SSL for this virtual host.
-		SSLEngine on
-		SSLProtocol all -SSLv2 -SSLv3 -TLSv1
+	#   SSL Engine Switch:
+	#   Enable/Disable SSL for this virtual host.
+	SSLEngine on
+	SSLProtocol all -SSLv2 -SSLv3 -TLSv1
 		
-		SSLCipherSuite "kEDH+AESGCM:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES256-GCMSHA384:ECDHE-RSA-AES256-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSAAES256-SHA384:ECDHE-ECDSA-AES256-SHA256:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSAAES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA256:AES256-GCM-SHA384:!3DES:!DES:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!EDE3:!EDH-DSS-CBC-SHA:!EDH-DSSDES-CBC3-SHA:!EDH-RSA-DES-CBC-SHA:!EDH-RSA-DES-CBC3-SHA:!EXP-EDH-DSS-DES-CBCSHA:!EXP-EDH-RSA-DES-CBC-SHA:!EXPORT:!MD5:!PSK:!RC4-SHA:!aNULL:!eNULL"
+	SSLCipherSuite "kEDH+AESGCM:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES256-GCMSHA384:ECDHE-RSA-AES256-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSAAES256-SHA384:ECDHE-ECDSA-AES256-SHA256:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSAAES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA256:AES256-GCM-SHA384:!3DES:!DES:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!EDE3:!EDH-DSS-CBC-SHA:!EDH-DSSDES-CBC3-SHA:!EDH-RSA-DES-CBC-SHA:!EDH-RSA-DES-CBC3-SHA:!EXP-EDH-DSS-DES-CBCSHA:!EXP-EDH-RSA-DES-CBC-SHA:!EXPORT:!MD5:!PSK:!RC4-SHA:!aNULL:!eNULL"
 
-		SSLHonorCipherOrder on
+	SSLHonorCipherOrder on
 
-		# Disable SSL Compression
-  		SSLCompression Off
+	# Disable SSL Compression
+	SSLCompression Off
   	
   	# Enable HTTP Strict Transport Security with a 2 year duration
- 		Header always set Strict-Transport-Security "max-age=63072000;includeSubDomains"
+	Header always set Strict-Transport-Security "max-age=63072000;includeSubDomains"
 
-		SSLCertificateFile	/root/certificates/sp.crt
-		SSLCertificateKeyFile /root/certificates/sp.key
+	SSLCertificateFile	/root/certificates/sp.crt
+	SSLCertificateKeyFile /root/certificates/sp.key
 
-		#   Server Certificate Chain:
-		#   Point SSLCertificateChainFile at a file containing the
-		#   concatenation of PEM encoded CA certificates which form the
-		#   certificate chain for the server certificate. Alternatively
-		#   the referenced file can be the same as SSLCertificateFile
-		#   when the CA certificates are directly appended to the server
-		#   certificate for convinience.
-		SSLCertificateChainFile /root/certificates/my-ca.crt
+	#   Server Certificate Chain:
+	#   Point SSLCertificateChainFile at a file containing the
+	#   concatenation of PEM encoded CA certificates which form the
+	#   certificate chain for the server certificate. Alternatively
+	#   the referenced file can be the same as SSLCertificateFile
+	#   when the CA certificates are directly appended to the server
+	#   certificate for convinience.
+	SSLCertificateChainFile /root/certificates/my-ca.crt
 
-		#   Certificate Authority (CA):
-		#   Set the CA certificate verification path where to find CA
-		#   certificates for client authentication or alternatively one
-		#   huge file containing all of them (file must be PEM encoded)
-		#   Note: Inside SSLCACertificatePath you need hash symlinks
-		#		 to point to the certificate files. Use the provided
-		#		 Makefile to update the hash symlinks after changes.
-		#SSLCACertificatePath /etc/ssl/certs/
-    SSLCACertificateFile /root/certificates/my-ca.crt
+	#   Certificate Authority (CA):
+	#   Set the CA certificate verification path where to find CA
+	#   certificates for client authentication or alternatively one
+	#   huge file containing all of them (file must be PEM encoded)
+	#   Note: Inside SSLCACertificatePath you need hash symlinks
+	#		 to point to the certificate files. Use the provided
+	#		 Makefile to update the hash symlinks after changes.
+	#SSLCACertificatePath /etc/ssl/certs/
+    	SSLCACertificateFile /root/certificates/my-ca.crt
     ...
 	</VirtualHost>
 </IfModule>
@@ -230,27 +230,91 @@ Add the same content as previously, and additionally write/uncoment the followin
 
 #### Insatll and configure Shibboleth
 
-
-## Activate SSL module 
 ```
-sudo a2enmod ssl headers 
+sudo apt install libapache2-mod-shib2 -y 
 ```
 
-## Deactivate default Virtual Host
+Set up a Shibboleth certificate (this is different to the Apache certicate)
+
 ```
-sudo a2ensite default-ssl.conf
+sudo shib-keygen -h sp.group9.csc.com -f
 ```
 
-Deactivate the default [READ THIS](https://webmasters.stackexchange.com/questions/83633/have-disabled-apache-site-config-file-000-default-conf-but-it-still-seems-activ)
+Edit `/etc/shibboleth/shibboleth2.xml`. 
+
 ```
-sudo a2dissite 000-default.conf 
+sudo nano /etc/shibboleth/shibboleth2.xml
 ```
 
-Apply the changes
+Edit the `ApplicationDefaults` element to include the entityID of the Service Provider.
+
 ```
-sudo systemctl reload apache2 
+ <ApplicationDefaults entityID="https://sp.group9.csc.com/shibboleth"
+REMOTE_USER="eppn persistent-id targeted-id">
+```
+
+Edit the `Sessions` element to use SSL.
+
+```
+<Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
+checkAddress="false" handlerSSL="true" cookieProps="https">
+```
+
+Configure the SSO for a default IdP (this could be set to use more than one IdP, by setting a WAYF discovery service).
+
+```
+<SSO entityID="https://idp.group9.csc.com/idp/shibboleth">
+              SAML2 SAML1
+</SSO>
+```
+
+Set an appropriate support contact in the `Errors` element. [Optional]
+
+```
+ <Errors supportContact="support@group9.csc.com"
+            helpLocation="/about.html"
+styleSheet="/shibboleth-sp/main.css"/>
+```
+
+Add a `MetadataProvider` element.
+
+```
+ <MetadataProvider type="XML" validate="true" file="idp-metadata.xml"/>
+```
+
+This was setup according to [[2]].
+
+
+#### Activate and deavtivate apache modules 
+
+```
+sudo a2enmod ssl headers &&
+sudo a2enmod shib2 &&
+sudo a2ensite group9.csc.com.conf &&
+sudo a2ensite default-ssl.conf &&
+sudo a2dissite 000-default.conf &&
+sudo systemctl reload apache2 &&
 sudo service apache2 restart
 ```
 
+#### Restart the services
+
+```
+sudo /etc/init.d/shibd restart
+sudo /etc/init.d/apache2 restart
+```
+
+#### Copy metadata
+
+Go to `https://sp.group9.csc.com/Shibboleth.sso/Metadata` and save the content to a file named `sp-metadata.xml`. 
+
+#### Notes
+
+- 
+
+Next: [set up the IdP server](https://github.com/jsbruglie/cripto/blob/dev/project/IdP/README.md).
+
 [1]: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig
+[2]: https://help.it.ox.ac.uk/iam/federation/shibsp-apache-howto
+[3]: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPLooping
 [keys]: https://github.com/jsbruglie/cripto/tree/dev/project/SP/keys
