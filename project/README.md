@@ -88,8 +88,8 @@ autologin-user-timeout=0
 ```
 
 [Setup]: setup/README.md
-[DNS]: dns/README.md
-[SP]: sp/README.md
-[IdP]: idp/README.md
+[DNS]: DNS/README.md
+[SP]: SP/README.md
+[IdP]: IdP/README.md
 
 [1]: http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-tech-overview-2.0-cd-02.html#5.1.Web
