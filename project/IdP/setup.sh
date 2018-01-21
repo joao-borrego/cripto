@@ -15,9 +15,9 @@ sudo mkdir -p /root/certificates
 sudo cp keys/idp.crt /root/certificates/idp.crt
 sudo cp keys/idp.key /root/certificates/idp.key
 sudo cp keys/my-ca.crt /root/certificates/my-ca.crt
-sudo chmod 0755 /root/certificates/idp.crt
+sudo chmod 0444 /root/certificates/idp.crt
 sudo chmod 0755 /root/certificates/idp.key
-sudo chmod 0755 /root/certificates/my-ca.crt
+sudo chmod 0444 /root/certificates/my-ca.crt
 
 # Configure Tomcat 8
 update-alternatives --config java

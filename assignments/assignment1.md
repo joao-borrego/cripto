@@ -1,7 +1,5 @@
 ## Assignment 1
 
-**TODO**
-
 ### Troubleshooting
 
 #### Establish a telnet connection
