@@ -36,8 +36,11 @@ sudo cp configs/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
 
 # Install Shibboleth
 sudo apt install libapache2-mod-shib2 -y 
+sudo cp keys/sp-key.pem /etc/shibboleth/sp-key.pem
+sudo cp keys/sp-cert.pem /etc/shibboleth/sp-cert.pem
+sudo chmod 0755 /etc/shibboleth/sp-key.pem
+sudo chmod 0755 /etc/shibboleth/sp-cert.pem
 sudo cp configs/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
-sudo shib-keygen -h sp.group9.csc.com
 sudo cp configs/idp-metadata.xml /etc/shibboleth/
 
 # Activate new modules and deactivate default
