@@ -275,7 +275,7 @@ idp.authn.flows= Password|RemoteUser
 
 #### Provide the metadata path
 
-Edit the the file `/opt/shibboleth-idp/conf/metadata-providers.xml` at the bottom with the following.
+Edit the file `/opt/shibboleth-idp/conf/metadata-providers.xml` at the bottom with the following.
 
 ```
 <MetadataProvider id="LocalMetadata" xsi:type="FilesystemMetadataProvider" metadataFile="/opt/shibboleth-idp/conf/sp-metadata.xml"/> 
