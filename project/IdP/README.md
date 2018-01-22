@@ -169,7 +169,7 @@ systemctl reload apache2 &&
 service apache2 restart 
 ```
 
-##### [IMPORTANT] Fix tomcat error
+#### Fix tomcat error [IMPORTANT] 
 
 Tomcat may throw an exception claiming that some files were not found.
 This can be easily fixed by creating symbolic links to these files in the same directory.
