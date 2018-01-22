@@ -49,7 +49,7 @@ Afterwards, a sucessfully authenticated user will then reply to the SP and the r
 The figure below illustrates the message flow [[2]].
 
 <p align="center"> 
-	<img src=images/saml_flow.gif>
+    <img src=images/saml_flow.gif>
 </p>
 
 The configuration of the SP is further detailed in [SP].
@@ -59,6 +59,10 @@ The configuration of the SP is further detailed in [SP].
 The identity provider issues authentication assertions in order to authenticate a given entity.
 Our setup will use Apache's `htpasswd` utility to authenticate a client trying to access the protected resource in SP.
 If the assertion suceeds, the user is redirected to the SP.
+
+<p align="center"> 
+    <img src=images/htpasswd.png>
+</p>
 
 We should mention that communications employ TLS and as such require certificates to be issued in order to establish a trust relationship between client and server.
 In our scenario, th IdP will simultaneously behave as the Certification Authority (CA), which signs the public keys of both SP and IdP in order to generate the required certificates.
@@ -97,7 +101,7 @@ Having followed all the steps, when the Browser machine (user) tries to access t
 The IdP prompts the user for credentials and if they are correct, redirects him to the desired resource. Tha should look something similar to the following image.
 
 <p align="center"> 
-	<img src=images/resource.png>
+    <img src=images/resource.png>
 </p>
 
 ### Notes
