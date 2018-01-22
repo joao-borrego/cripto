@@ -1,5 +1,8 @@
 ### Service Provider configuration
 
+Running [sp.sh](https://github.com/jsbruglie/cripto/blob/dev/project/SP/sp.sh) should setup everything as needed.
+The configuration process is further detailed below.
+
 #### Install Apache 
 
 To implement the SP, we need a web server, since half of Shibboleth runs within it and also our SP will be the host for the protected resource. For that, we will be using Apache.
@@ -162,7 +165,7 @@ sudo nano /etc/apache2/sites-available/group9.csc.com.conf
 
 `DocumentRoot` is where Apache will look for the website files to display.
 
-`Redirect` blocks non-SSL access, redirecting an HTTP request to a HTTPS one. This is **very important**, refer to [].
+`Redirect` blocks non-SSL access, redirecting an HTTP request to a HTTPS one. This is **very important**, refer to [[Notes]].
 
 ```
  <Location /resource/>
@@ -310,11 +313,15 @@ Go to `https://sp.group9.csc.com/Shibboleth.sso/Metadata` and save the content t
 
 #### Notes
 
-- 
+- Because we are using the "secure" cookie attribute to limit cookie use to SSL-protected requests (`cookieProps="https"` in shibboleth2.xml `Sessions` element), which is highly advisable for any site intended to be SSL protected, the HTTP and HTTPS requests will bounce between each other it non-SSL access isn't blocked [[3]]. This was accomplished with the `Redirect` field on `group9.csc.com.conf`.
 
-Next: [set up the IdP server](https://github.com/jsbruglie/cripto/blob/dev/project/IdP/README.md).
+- According to the official documentation of Shibboleth the access resctriction to the protected resource can be set using the `RequestMapper` element in shibboleth2.xml. But because we are using apache as a web server, this WILL NOT work due to Apache's interal design [[1]], thus enabling the shibboleth module on apache virtual hosts config files.
+
+
+Next: [IdP](https://github.com/jsbruglie/cripto/blob/dev/project/IdP/README.md).
 
 [1]: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig
 [2]: https://help.it.ox.ac.uk/iam/federation/shibsp-apache-howto
 [3]: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPLooping
 [keys]: https://github.com/jsbruglie/cripto/tree/dev/project/SP/keys
+[Notes]: https://github.com/jsbruglie/cripto/blob/dev/project/SP/README.md#notes
