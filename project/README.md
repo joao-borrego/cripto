@@ -98,7 +98,8 @@ sudo systemctl reload apache2 && sudo service apache2 restart && sudo service to
 
 Having followed all the steps, when the Browser machine (user) tries to access the protected resource at `https://sp.group9.csc.com/resource` or `http://sp.group9.csc.com/resource`, it gets redirected to the IdP. 
 
-The IdP prompts the user for credentials and if they are correct, redirects him to the desired resource. Tha should look something similar to the following image.
+The IdP prompts the user for credentials and if they are correct, redirects him to the desired resource.
+The final coutcome should resemble the following image.
 
 <p align="center"> 
     <img src=images/resource.png>
