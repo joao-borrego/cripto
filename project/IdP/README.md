@@ -1,9 +1,11 @@
-## IdP Setup
+### Identity Provider configuration
 
+Running [idp.sh](https://github.com/jsbruglie/cripto/blob/dev/project/IdP/idp.sh) and [copying the generated metadata](https://github.com/jsbruglie/cripto/tree/dev/project/IdP#copy-metadata) should setup everything as needed.
 
-### Installation
+The configuration process is further detailed below.
 
-Install dependencies
+#### Install dependencies
+
 ```
 sudo apt update &&
 sudo apt install vim \
@@ -43,10 +45,22 @@ export IDP_SRC="/usr/local/src/shibboleth-identity-provider-3.2.1"
 **Notice** that in an Ubuntu VM we install openjdk-**i386**.
 On another scenario we may have to replace **i386** by **amd64**. 
 
-We will need SSL keys and certificate.
+#### Certificate and private key
+
+To employ TLS, copy the pre-generated keys and certificates to /root/certificates and give them the following permissions.
 The specifics are further detailed in [keys].
 
-Configure Tomcat 8
+```
+sudo mkdir -p /root/certificates
+sudo cp keys/idp.crt /root/certificates/idp.crt
+sudo cp keys/idp.key /root/certificates/idp.key
+sudo cp keys/my-ca.crt /root/certificates/my-ca.crt
+sudo chmod 0444 /root/certificates/idp.crt
+sudo chmod 0755 /root/certificates/idp.key
+sudo chmod 0444 /root/certificates/my-ca.crt
+```
+
+#### Configure Tomcat 8
 ```
 update-alternatives --config java
 update-alternatives --config javac
@@ -65,7 +79,6 @@ Launch a root terminal
 ```
 sudo su -
 ```
-
 Download Shibboleth IdP v3.2.1
 ```
 cd /usr/local/src &&
@@ -92,22 +105,22 @@ Cookie Encryption Key Password: inseguro
 Re-enter password: inseguro
 ```
 
-Install JST libraries in order to visualise the IdP status page
+#### Install JST libraries 
+
+This is for visualising the IdP status page.
 ```
 cd /opt/shibboleth-idp/edit-webapp/WEB-INF/lib
 wget https://build.shibboleth.net/nexus/service/local/repositories/thirdparty/content/javax/servlet/jstl/1.2/jstl-1.2.jar
 cd /opt/shibboleth-idp/bin ; ./build.sh -Didp.target.dir=/opt/shibboleth-idp
 ```
 
-Enable **tomcat8** user's access to the required directories
+#### Enable tomcat8 user's access to the required directories
 ```
 chown -R tomcat8 /opt/shibboleth-idp/logs/ &&
 chown -R tomcat8 /opt/shibboleth-idp/metadata/ &&
 chown -R tomcat8 /opt/shibboleth-idp/credentials/ &&
 chown -R tomcat8 /opt/shibboleth-idp/conf/
 ```
-
-### Configuration
 
 #### Configure SSL on Apache2
 
@@ -140,20 +153,20 @@ Edit the file `etc/apache2/sites-available/default-ssl.conf` as follows
 </VirtualHost>
 ```
 
-**Do not forget to copy the key and certificate** to `/root/certificates/` directory.
+Configure Apache2 to open port 80 only for localhost ìn `/etc/apache2/ports.conf`
+```
+Listen 127.0.0.1:80
+```
 
-Enable SSL and headers modules for Apache2
+**Do not forget to copy the key and certificate** to `/root/certificates/` directory, if you haven't.
+
+#### Enable SSL and headers modules for Apache2
 ```
 a2enmod ssl headers &&
 a2ensite default-ssl.conf &&
 a2dissite 000-default.conf &&
 systemctl reload apache2 &&
 service apache2 restart 
-```
-
-Configure Apache2 to open port 80 only for localhost ìn `/etc/apache2/ports.conf`
-```
-Listen 127.0.0.1:80
 ```
 
 ##### [IMPORTANT] Fix tomcat error
@@ -184,7 +197,13 @@ Edit `/etc/tomcat8/server.xml` and
            enableLookups="false" tomcatAuthentication="false"/>
 ```
 
-Create and edit the file `/etc/tomcat8/Catalina/localhost/idp.xml`
+Give it 640 permissions
+
+```
+sudo chmod 640 /etc/tomcat8/server.xml 
+```
+
+Create a file `/etc/tomcat8/Catalina/localhost/idp.xml` with
 ```
 <Context docBase="/opt/shibboleth-idp/war/idp.war"
          privileged="true"
@@ -192,7 +211,7 @@ Create and edit the file `/etc/tomcat8/Catalina/localhost/idp.xml`
          swallowOutput="true"/>
 ```
 
-Create an Apache2 configuration file for IdP `/etc/apache2/sites-available/idp.conf`
+Create an Apache2 configuration file for IdP `/etc/apache2/sites-available/idp.conf` with 
 ```
 <Proxy ajp://localhost:8009>
   Require all granted
@@ -202,25 +221,35 @@ ProxyPass /idp ajp://localhost:8009/idp retry=5
 ProxyPassReverse /idp ajp://localhost:8009/idp retry=5
 ```
 
-Enable **proxy_ajp** apache2 module and the IdP site
-```
-a2enmod proxy_ajp ; a2ensite idp.conf ; service apache2 restart
-```
-
 Modify `/etc/tomcat8/context.xml` to prevent a *lack of persistence of the session objects* error
 and uncomment the line
 ```
 <Manager pathname="" />
 ```
 
-Verify that the IdP is working by opening on your browser
-https://localhost/idp/shibboleth.
+Give it 640 permissions
+
+```
+sudo chmod 640 /etc/tomcat8/context.xml
+```
+
+Enable **proxy_ajp** apache2 module and the IdP site.
+```
+a2enmod proxy_ajp ; a2ensite idp.conf ; service apache2 restart
+```
+
+Verify that the IdP is working by opening on your browser at `https://localhost/idp/shibboleth`.
 If it does not, restart the machine and retry.
 You should be able to see an XML metadata file.
 
 #### Configure htpasswd for authentication
 
 We will use Apache's `htpasswd` for authenticating users.
+
+Create a directory at `/usr/local/idp/credentials`
+```
+sudo mkdir /usr/local/idp/credentials -p
+```
 
 Add a new user to a new credentials database.
 ```
@@ -238,8 +267,28 @@ Protect to the remote authentication resource in `/etc/apache2/sites-available/i
 </Location>
 ```
 
-#### Configure IdP to handle SP requests
+Define the authentication flow by editing the file `/opt/shibboleth-idp/conf/idp.properties` in the following line.
 
+```
+idp.authn.flows= Password|RemoteUser
+```
+
+#### Provide the metadata path
+
+Edit the the file `/opt/shibboleth-idp/conf/metadata-providers.xml` at the bottom with the following.
+
+```
+<MetadataProvider id="LocalMetadata" xsi:type="FilesystemMetadataProvider" metadataFile="/opt/shibboleth-idp/conf/sp-metadata.xml"/> 
+```
+
+#### Copy metadata
+
+Go to `https://idp.group9.csc.com/idp/shibboleth` and save the content to a file named `idp-metadata.xml`.
 
 
 [keys]: keys/README.md
+
+
+
+
+
