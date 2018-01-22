@@ -6,6 +6,7 @@
  * [4. SP](#4-sp)
  * [5. IdP](#5-idp)
  * [6. Metadata](#6-metadata)
+ * [7. Results](#7-results)
  * [Notes](#notes)
 
 ### 1. Introduction
@@ -70,6 +71,34 @@ In order for the SP and IdP to be able to communicate with each other, it is of 
 This essentially means that each of them must have access to the other's **metadata**.
 In our scenario, it suffices that each entity has the other's metadata XML file in a known and accessible directory.
 If these files are missing or outdated, it is very likely that the system **will fail**!
+
+To do this:
+
+- Copy the `sp-metadata.xml` obtained at the SP configuration to `/opt/shibboleth-idp/conf/`. 
+
+- Restart the services at SP
+
+```
+sudo /etc/init.d/shibd restart && sudo /etc/init.d/apache2 restart
+```
+
+- Copy the `idp-metadata.xml` obtained at the IdP configuration to `/etc/shibboleth/`. 
+
+- Restart the services at IdP
+
+```
+sudo systemctl reload apache2 && sudo service apache2 restart && sudo service tomcat8 restart
+```
+
+### 7. Results
+
+Having followed all the steps, when the Browser machine (user) tries to access the protected resource at `https://sp.group9.csc.com/resource` or `http://sp.group9.csc.com/resource`, it gets redirected to the IdP. 
+
+The IdP prompts the user for credentials and if they are correct, redirects him to the desired resource. Tha should look something similar to the following image.
+
+<p align="center"> 
+	<img src=images/resource.png>
+</p>
 
 ### Notes
 
