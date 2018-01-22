@@ -285,6 +285,7 @@ Edit the the file `/opt/shibboleth-idp/conf/metadata-providers.xml` at the botto
 
 Go to `https://idp.group9.csc.com/idp/shibboleth` and save the content to a file named `idp-metadata.xml`.
 
+Next: [Metadata](https://github.com/jsbruglie/cripto/tree/dev/project#6-metadata)
 
 [keys]: keys/README.md
 
