@@ -287,9 +287,14 @@ Go to `https://idp.group9.csc.com/idp/shibboleth` and save the content to a file
 
 Next: [Metadata](https://github.com/jsbruglie/cripto/tree/dev/project#6-metadata)
 
+
+### References
+
+1. [Shibboleth IdP Tutorial][1] by `malavolti`, as of 22-01-2018
+2. [Shibboleth IdP Official Documentation][2], as of 22-01-2018
+
+
 [keys]: keys/README.md
 
-
-
-
-
+[1]: https://github.com/malavolti/HOWTO-Install-and-Configure-Shibboleth-Identity-Provider
+[2]: https://wiki.shibboleth.net/confluence/display/SHIB2/IdPConfiguration

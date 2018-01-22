@@ -7,7 +7,9 @@ The configuration process is further detailed below.
 
 #### Install Apache 
 
-To implement the SP, we need a web server, since half of Shibboleth runs within it and also our SP will be the host for the protected resource. For that, we will be using Apache.
+To implement the SP, we need a web server, since half of Shibboleth runs within it.
+Furthermore, our SP will be the host for the protected resource.
+For that, we will be using Apache.
 
 ```
 sudo apt install apache2 -y
@@ -321,10 +323,16 @@ Go to `https://sp.group9.csc.com/Shibboleth.sso/Metadata` and save the content t
 
 - Because we are using the "secure" cookie attribute to limit cookie use to SSL-protected requests (`cookieProps="https"` in shibboleth2.xml `Sessions` element), which is highly advisable for any site intended to be SSL protected, the HTTP and HTTPS requests will bounce between each other it non-SSL access isn't blocked [[3]]. This was accomplished with the `Redirect` field on `group9.csc.com.conf`.
 
-- According to the official documentation of Shibboleth the access resctriction to the protected resource can be set using the `RequestMapper` element in shibboleth2.xml. But because we are using apache as a web server, this WILL NOT work due to Apache's interal design [[1]], thus enabling the shibboleth module on apache virtual hosts config files.
+- According to the official documentation of Shibboleth the access resctriction to the protected resource can be set using the `RequestMapper` element in shibboleth2.xml. But because we are using apache as a web server, this **will not** work due to Apache's interal design [[1]], thus enabling the shibboleth module on apache virtual hosts config files.
 
 
 Next: [IdP]
+
+### References
+
+1. [Shibboleth Native SP for Apache Official Documentation][1], as of 22-01-2018
+1. [University of Oxford's Installation Guide for Shibboleth SP with Apache][2], as of 22-01-2018
+1. [Shibboleth Native SP Looping][3], as of 22-01-2018
 
 [1]: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig
 [2]: https://help.it.ox.ac.uk/iam/federation/shibsp-apache-howto

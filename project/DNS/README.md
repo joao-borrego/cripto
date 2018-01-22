@@ -129,4 +129,10 @@ sudo resolvconf -u
 
 Next: [SP](https://github.com/jsbruglie/cripto/blob/dev/project/README.md#4-sp)
 
+### References
+
+1. [Digital Ocean DNS Tutorial][1], as of 22-01-2018
+
 [dns.sh]: dns.sh
+
+[1]: https://www.digitalocean.com/community/tutorials/how-to-configure-bind-as-a-private-network-dns-server-on-ubuntu-14-04

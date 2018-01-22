@@ -126,6 +126,11 @@ autologin-user=user
 autologin-user-timeout=0
 ```
 
+### References
+
+1. [Shibboleth official website][1], as of 22-01-2018
+1. [SAML V2.0 Technical Overview][2], as of 22-01-2018
+
 [Setup]: setup/README.md
 [DNS]: DNS/README.md
 [SP]: SP/README.md
