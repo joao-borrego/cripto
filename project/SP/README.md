@@ -165,7 +165,7 @@ sudo nano /etc/apache2/sites-available/group9.csc.com.conf
 
 `DocumentRoot` is where Apache will look for the website files to display.
 
-`Redirect` blocks non-SSL access, redirecting an HTTP request to a HTTPS one. This is **very important**, refer to [[Notes]].
+`Redirect` blocks non-SSL access, redirecting an HTTP request to a HTTPS one. This is **very important**, refer to [Notes].
 
 ```
  <Location /resource/>
@@ -318,10 +318,11 @@ Go to `https://sp.group9.csc.com/Shibboleth.sso/Metadata` and save the content t
 - According to the official documentation of Shibboleth the access resctriction to the protected resource can be set using the `RequestMapper` element in shibboleth2.xml. But because we are using apache as a web server, this WILL NOT work due to Apache's interal design [[1]], thus enabling the shibboleth module on apache virtual hosts config files.
 
 
-Next: [IdP](https://github.com/jsbruglie/cripto/blob/dev/project/IdP/README.md).
+Next: [IdP]
 
 [1]: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig
 [2]: https://help.it.ox.ac.uk/iam/federation/shibsp-apache-howto
 [3]: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPLooping
 [keys]: https://github.com/jsbruglie/cripto/tree/dev/project/SP/keys
 [Notes]: https://github.com/jsbruglie/cripto/blob/dev/project/SP/README.md#notes
+[IdP]: https://github.com/jsbruglie/cripto/blob/dev/project/IdP/README.md
