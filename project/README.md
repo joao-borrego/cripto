@@ -117,7 +117,7 @@ This setup was tested in Lubuntu 16.04.3 LTS.
 
 #### Prevent automatic log-off in Lubuntu
 
-Prevent virtual machine from auto-logging off by editing `/usr/share/lightdm/lightdm.conf.d/20-lubuntu.conf` to resemble
+Prevent virtual machine from auto-logging off from LXDE by editing `/usr/share/lightdm/lightdm.conf.d/20-lubuntu.conf` to resemble
 
 ```
 [Seat:*]
