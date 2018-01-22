@@ -42,8 +42,8 @@ export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-i386/jre" &&
 export IDP_SRC="/usr/local/src/shibboleth-identity-provider-3.2.1"
 ```
 
-**Notice** that in an Ubuntu VM we install openjdk-**i386**.
-On another scenario we may have to replace **i386** by **amd64**. 
+**Notice** that in the Lubuntu 32-bit VM we install openjdk-**i386**.
+In a 64-bit OS we have to replace **i386** by **amd64**. 
 
 #### Certificate and private key
 
