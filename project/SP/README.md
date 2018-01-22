@@ -1,6 +1,8 @@
 ### Service Provider configuration
 
-Running [sp.sh](https://github.com/jsbruglie/cripto/blob/dev/project/SP/sp.sh) should setup everything as needed.
+Running [sp.sh](https://github.com/jsbruglie/cripto/blob/dev/project/SP/sp.sh) and [copying the generated metadata](https://github.com/jsbruglie/cripto/tree/dev/project/SP#copy-metadata) should setup everything as needed.
+
+
 The configuration process is further detailed below.
 
 #### Install Apache 
