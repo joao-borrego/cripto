@@ -50,10 +50,14 @@ To employ TLS, copy the pre-generated keys and certificates to `/root/certificat
 
 ```
 sudo mkdir /root/certificates -p
-sudo cp configs/sp.crt /root/certificates/sp.crt
-sudo cp configs/sp.key /root/certificates/sp.key
+sudo cp keys/sp.crt /root/certificates/sp.crt
+sudo cp keys/sp.key /root/certificates/sp.key
+sudo cp keys/my-ca.crt /root/certificates/my-ca.crt
+sudo cp keys/my-ca.key /root/certificates/my-ca.key
 sudo chmod 0755 /root/certificates/sp.crt
 sudo chmod 0755 /root/certificates/sp.key
+sudo chmod 0755 /root/certificates/my-ca.crt
+sudo chmod 0755 /root/certificates/my-ca.key
 ```
 
 Or generate the [keys] yourself.
